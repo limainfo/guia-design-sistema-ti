@@ -40,7 +40,7 @@ Embora toda a pilha de rede seja fascinante, há três camadas principais que ap
 
 #### Camadas OSI
 
-![Network Layers](assets/core-concepts/networking-essentials/assets/01-osi-layers.png)
+![Network Layers](assets/core-concepts/networking-essentials/01-osi-layers.png)
 
 ##### Network Layer (Layer 3)
 
@@ -68,7 +68,7 @@ Primeiro usamos DNS para converter um nome de domínio legível por humanos, com
 
 Em detalhes:
 
-![Simple Web Request](assets/core-concepts/networking-essentials/assets/02-simple-http-request.png)
+![Simple Web Request](assets/core-concepts/networking-essentials/02-simple-http-request.png)
 
 
 #### Simple HTTP Request
