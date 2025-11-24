@@ -1575,16 +1575,1135 @@ Essa frase demonstra maturidade técnica e entendimento de trade-offs.
 ✔ Ótimo quando realmente precisamos de áudio/vídeo/streaming
 
 ---
+## Parte 9 — Load Balancing (L4, L7, Health Checks, Algoritmos)
 
-Se quiser, seguimos agora para:
+Agora entramos em um dos assuntos **mais cobrados em entrevistas de System Design**: **load balancing**.
 
-### ✔ **Parte 9 — Load Balancing (L4, L7, algoritmos, health checks)**
+Load balancers são essenciais para:
 
-ou
+* escalar horizontalmente
+* distribuir tráfego entre servidores
+* garantir disponibilidade
+* lidar com falhas
+* manter baixa latência
+* evitar sobrecarga em apenas um nó
 
-### ✔ Continuar na ordem original indo para “Regionalization & Latency”
+E fazem isso tanto no nível **cliente** (client-side load balancing) quanto no nível **servidor** (dedicated load balancers).
 
-Basta dizer: **“Parte 9”**.
+Vamos começar pelo básico.
+
+---
+
+# O que é Load Balancing?
+
+É a técnica de **dividir requisições entre múltiplos servidores**.
+
+Se temos 1 servidor:
+
+```
+Cliente → Servidor
+```
+
+Mas se temos 5 servidores, precisamos decidir **quem recebe cada requisição**:
+
+```
+              → Servidor A
+Cliente → LB → Servidor B
+              → Servidor C
+              → Servidor D
+              → Servidor E
+```
+
+Sem um load balancer, você teria que expor todos os servidores ao cliente — o que seria caótico.
+
+---
+
+# Escalabilidade: Vertical vs Horizontal
+
+### **Vertical Scaling (scale-up)**
+
+Aumentar CPU / RAM / disco de uma máquina.
+
+Vantagens:
+
+* simples
+* eficiente
+
+Desvantagens:
+
+* limitado
+* caro
+* ponto único de falha
+
+### **Horizontal Scaling (scale-out)**
+
+Adicionar mais servidores.
+
+Vantagens:
+
+* escalabilidade infinita
+* alta disponibilidade
+* redundância
+
+Desvantagens:
+
+* requer load balancing
+* requer infraestrutura de cluster
+
+Para entrevistas, **horizontal** é quase sempre o caminho.
+
+---
+
+# Tipos de Load Balancing
+
+Existem dois modelos principais:
+
+1. **Client-side load balancing**
+2. **Dedicated load balancer (server-side)**
+
+Vamos explorar ambos.
+
+---
+
+# 1. Client-Side Load Balancing
+
+Aqui, o **cliente decide** qual servidor usar.
+
+Geralmente:
+
+* cliente pega uma lista de servidores
+* escolhe um
+* envia requisição diretamente
+
+Isso reduz latência e remove uma camada no meio.
+
+---
+
+## Exemplos de client-side load balancing
+
+### **A. Redis Cluster**
+
+O cliente conecta a qualquer nó do cluster → recebe o mapa de nós → usa hashing para saber qual nó contém a chave → acessa diretamente o nó correto.
+
+Se errar, o Redis responde com:
+
+```
+MOVED {new_node}
+```
+
+### **B. DNS Round Robin**
+
+Quando você consulta:
+
+```
+example.com
+```
+
+O DNS retorna uma lista rotacionada:
+
+```
+1.1.1.1
+1.1.1.2
+1.1.1.3
+```
+
+Cada cliente vê uma ordem diferente → requests vão para servidores diferentes.
+
+---
+
+## Quando usar client-side load balancing
+
+✔ Em microserviços internos
+✔ Quando você controla o cliente
+✔ Quando atualizar a lista de servidores é simples
+✔ Para reduzir um hop de rede
+✔ Para reduzir latência
+✔ Para sistemas que suportam gRPC
+
+## Quando NÃO usar
+
+❌ Em clientes públicos
+❌ Em dispositivos móveis
+❌ Quando a lista de servidores muda frequentemente
+❌ Quando você não controla o código cliente
+
+---
+
+# 2. Dedicated Load Balancer (server-side)
+
+O modelo mais comum.
+
+Existe um componente dedicado entre cliente e servidor:
+
+```
+Cliente → Load Balancer → Servidores
+```
+
+Esse load balancer pode ser:
+
+* hardware (F5, Citrix)
+* software (NGINX, HAProxy, Envoy)
+* gerenciado (AWS ALB/NLB, Google Cloud LB, Azure LB)
+
+Vantagens:
+
+* atualizações instantâneas de servidores
+* health checks
+* algoritmos complexos
+* controle centralizado
+* segurança integrada
+* roteamento sofisticado
+
+Desvantagens:
+
+* adiciona um hop
+* pode virar SPOF (mitigado com múltiplos LBs + DNS)
+
+---
+
+# L4 vs L7 Load Balancing
+
+Agora entramos no tema mais cobrado em entrevistas.
+
+---
+
+# Layer 4 Load Balancer (TCP/UDP)
+
+Opera na **camada de transporte**.
+
+Não lê HTTP.
+Não entende cookies.
+Não olha headers.
+
+Ele roteia tráfego baseando-se apenas em:
+
+* IP origem/destino
+* Porta
+* Protocolo (TCP/UDP)
+
+É extremamente rápido.
+
+### Uso típico:
+
+* WebSockets
+* gRPC (em muitos casos)
+* Jogos online
+* Tráfego binário
+* Alta performance
+
+---
+
+# Layer 7 Load Balancer (HTTP/HTTPS)
+
+Opera na **camada de aplicação**.
+
+Entende:
+
+* HTTP
+* URL
+* Headers
+* Cookies
+* Query params
+
+E pode tomar decisões inteligentes:
+
+* enviar `/api/*` para backend de API
+* enviar `/static/*` para servidores de assets
+* rotear usuários a partir de cookies
+* gzip, rate-limit, autentication, etc.
+
+### Uso típico:
+
+* REST
+* GraphQL
+* APIs públicas
+* Websites
+* Routers inteligentes de URL
+
+---
+
+# Resumo L4 vs L7
+
+| Característica        | L4         | L7               |
+| --------------------- | ---------- | ---------------- |
+| Camada                | Transporte | Aplicação        |
+| Protocolo             | TCP/UDP    | HTTP             |
+| Performance           | Muito alta | Alta (mas menor) |
+| Persistência          | Ideal      | Não ideal        |
+| WebSockets            | Excelente  | Pode quebrar     |
+| Flexibilidade         | Baixa      | Altíssima        |
+| Roteamento por URL    | Não        | Sim              |
+| Roteamento por cookie | Não        | Sim              |
+| Roteamento por header | Não        | Sim              |
+
+---
+
+# Health Checks (checagem de saúde)
+
+Load balancers usam health checks para saber se o servidor está vivo.
+
+Tipos comuns:
+
+### **TCP health check**
+
+Mais rápido e barato:
+
+* Abre uma conexão TCP
+* Se conectou → servidor saudável
+
+### **HTTP health check**
+
+Mais detalhado:
+
+* Faz requisição HTTP (ex: `/health`)
+* Espera status 200
+* Pode verificar database, cache, etc.
+
+### **gRPC health check**
+
+* Usa método padrão `grpc.health.v1.Health/Check`
+
+Load balancer **desativa** servidores que falham.
+Alta disponibilidade garantida.
+
+---
+
+# Algoritmos de Load Balancing
+
+### **1. Round Robin**
+
+Sequencial: A → B → C → A → B → C
+Simples, balanceado, ótimo para servidores idênticos.
+
+### **2. Random**
+
+Escolhe aleatoriamente.
+Efetivo com workloads homogêneos.
+
+### **3. Least Connections**
+
+Envia requisições para o servidor com **menos conexões ativas**.
+
+Perfeito para:
+
+* WebSockets
+* SSE
+* Requisições longas
+
+### **4. Least Response Time**
+
+Escolhe o servidor mais rápido.
+
+### **5. IP Hash**
+
+Mesma origem → mesmo servidor
+Bom para sticky sessions.
+
+---
+
+# Por que WebSockets exigem L4?
+
+Porque WebSockets precisam:
+
+* conexão persistente
+* handshake
+* manter a mesma conexão TCP viva
+* tráfego contínuo
+
+Um L7 LB **termina** a conexão e cria outra → isso quebra WebSockets.
+
+Por isso:
+
+> **Se o sistema usar WebSockets, escolha um L4 load balancer.**
+
+Ponto importante em entrevistas.
+
+---
+
+# Real-World Tools
+
+### Hardware:
+
+* F5 BIG-IP
+
+### Software:
+
+* NGINX
+* HAProxy
+* Envoy
+
+### Cloud:
+
+* AWS ELB, ALB, NLB
+* Google Cloud LB
+* Azure LB
+
+L4: NLB / TCP LB
+L7: ALB / HTTP LB
+
+---
+
+# Frase perfeita para entrevistas
+
+> “Para tráfego HTTP, usaria um load balancer L7.
+> Para WebSockets, gRPC ou conexões persistentes, prefiro um L4 devido à necessidade de manter o fluxo TCP.”
+
+Simples e demonstra entendimento profundo.
+
+---
+
+## Parte 10 — Regionalização, Latência e CDNs
+
+Agora entramos em um dos temas **mais importantes** para sistemas globais:
+**como reduzir latência e lidar com distribuição geográfica**.
+
+Este tópico é extremamente relevante em entrevistas, especialmente quando:
+
+* o sistema precisa atender usuários no mundo todo
+* APIs precisam responder rápido
+* existe tráfego massivo
+* lidamos com disponibilidade e redundância
+* clientes estão espalhados em múltiplos continentes
+
+Vamos por partes.
+
+---
+
+# 🌎 O Problema: Latência Físico-Geográfica
+
+A latência depende da **distância física**.
+Mesmo viajando pela fibra ótica (que opera a ~⅔ da velocidade da luz), não há como superar isso.
+
+Exemplo:
+
+* **Nova York → Londres**: ~5.600 km
+* Velocidade da luz na fibra: ~200.000 km/s
+* Latência mínima: **~56 ms apenas de ida e volta** (RTT)
+
+Agora imagine:
+
+* DNS
+* TLS handshake
+* routing hops
+* firewalls
+* load balancers
+* processamento de aplicação
+* banco de dados em outra região
+
+A latência real pode facilmente chegar a 150–250 ms.
+
+E isso é perceptível ao usuário.
+
+---
+
+# ✔ Estratégia Geral: Aproximar os Dados do Usuário
+
+O princípio mais importante:
+
+> **Quanto mais perto o dado está da computação, mais rápido o sistema.**
+
+Isso vale para:
+
+* memória → CPU
+* cache → aplicação
+* banco → backend
+* usuário → edge/CDN
+
+---
+
+# 1. Content Delivery Networks (CDNs)
+
+CDNs são redes de servidores espalhadas pelo mundo.
+
+Chamadas de:
+
+* POPs (Points of Presence)
+* Edge Locations
+
+Elas armazenam conteúdo mais próximo ao usuário final.
+
+### O que elas fazem?
+
+✔ Cache de imagens
+✔ Cache de vídeos
+✔ Cache de arquivos estáticos
+✔ Cache de HTML
+✔ Cache de JSON (quando permitido)
+✔ TLS termination
+✔ Compressão, minificação
+✔ Edge computing (em alguns casos)
+
+CDNs podem ter **milhares de localizações** — muito mais que qualquer provedor de nuvem.
+
+### Por que isso é tão eficiente?
+
+Se o usuário está em São Paulo e o backend está na Virgínia (EUA), a latência pode ser ~150 ms.
+
+Se a CDN possui um POP em São Paulo:
+
+* o usuário recebe o conteúdo instantaneamente da CDN
+* sem precisar ir até a Virgínia
+
+---
+
+# Quando mencionar CDN na entrevista?
+
+Quase sempre quando:
+
+* usuários globais
+* muito conteúdo estático
+* muita leitura (read-heavy)
+* o entrevistador reclama de latência
+* você quer reduzir carga nos servidores principais
+
+CDN costuma ser uma **resposta vencedora**.
+
+---
+
+# 2. Regional Partitioning (Partitionamento Regional)
+
+Agora vamos falar sobre **dados dinâmicos**, que não podem ser simplesmente cacheados.
+
+Exemplo perfeito: Uber.
+
+Se você está em **Miami**, você nunca vai pedir uma corrida para um motorista em **Nova York**.
+
+Isso significa:
+
+✔ dados são *naturalmente regionais*
+✔ podemos particionar por região
+✔ cada região deve ter seu próprio conjunto de servidores e banco de dados
+
+---
+
+## Exemplo de Arquitetura Regional
+
+```
+                  Usuário em EU
+                     │
+         ┌───────────┴───────────┐
+         │                       │
+Região EUA                  Região Ásia
+(Ohio, Virgínia)           (Cingapura, Tóquio)
+         │                       │
+  Bancos regionais        Bancos regionais
+         │                       │
+  Servidores regionais    Servidores regionais
+```
+
+Cada região é **autossuficiente**.
+
+### Vantagens
+
+* baixa latência
+* bancos menores → mais rápidos
+* falhas isoladas regionalmente
+* escala mais simples
+
+---
+
+# 3. Multi-Region + Multi-AZ
+
+Em sistemas críticos, você precisa mencionar:
+
+* **Zonas de disponibilidade (AZs)** dentro da mesma região
+* **Regiões duplicadas** para failover
+
+### AZs protegem contra:
+
+✔ falha de datacenter
+✔ queda de energia local
+✔ incêndios físicos
+
+### Múltiplas regiões protegem contra:
+
+✔ desastres massivos
+✔ problemas de backbone
+✔ quedas regionais de provedores
+✔ ataques direcionados
+
+---
+
+# 4. Latência de Banco de Dados entre Regiões
+
+Um erro comum em entrevistas:
+
+> “Meu app está em São Paulo, o banco em Virgínia, mas tudo bem…”
+
+❌ Não está!
+Cada query terá ~120–160 ms só de rede.
+
+Se a API faz:
+
+* 1 consulta = OK
+* 5 consultas = 600 ms
+* 20 consultas = impossível
+
+A regra:
+
+> **Banco e aplicação devem estar na mesma região.**
+
+Se o problema envolve sistema global:
+
+✔ use bancos separados
+✔ particione por região
+✔ evite replicação síncrona entre continentes
+
+---
+
+# 5. Reduzindo Latência sem Particionar
+
+Quando não podemos particionar a aplicação inteira, há técnicas úteis:
+
+### ✔ Edge Caching com TTL curto
+
+Cachear respostas dinâmicas por alguns segundos já reduz muito a latência.
+
+### ✔ Read Replicas regionais
+
+O banco principal fica em uma região.
+Outras regiões têm réplicas apenas para leitura.
+
+### ✔ Edge Functions / Cloudflare Workers
+
+Executar partes da lógica no EDGE.
+
+---
+
+# Conversa típica na entrevista
+
+Se o entrevistador pergunta:
+
+> “Nosso sistema precisa servir usuários globalmente. Como reduzir latência?”
+
+Resposta perfeita:
+
+> "Começaria usando uma CDN para conteúdo estático e responses cacheáveis.
+> Para dados dinâmicos, particionaria por região sempre que os dados forem localizados, como em serviços do tipo Uber.
+> Aplicação e banco devem estar na mesma região, e usaríamos múltiplas AZs para alta disponibilidade."
+
+Essa resposta cobre:
+
+* latência
+* regionalização
+* arquitetura
+* disponibilidade
+* boas práticas de nuvem
+
+É exatamente o que o avaliador espera ouvir.
+
+---
+
+# Resumo da Parte 10
+
+✔ Latência é limitada pela física
+✔ CDNs são essenciais para conteúdo cacheável
+✔ Particionamento regional reduz consultas multiplamente distantes
+✔ Multi-AZ e multi-region garantem alta disponibilidade
+✔ Banco deve estar perto da aplicação
+✔ Usuários devem ser encaminhados à região mais próxima
+
+---
+
+## Parte 11 — Handling Failures
+
+### (Timeouts, Retries, Exponential Backoff, Idempotência, Circuit Breakers)
+
+Agora chegamos ao último grande bloco de conhecimentos essenciais de networking para system design:
+**como lidar com falhas**.
+
+Esse é um dos temas **mais cobrados** em entrevistas — especialmente para vagas de:
+
+* backend
+* sistemas distribuídos
+* cloud
+* escalabilidade
+* microserviços
+
+E também é uma forma do entrevistador detectar maturidade técnica.
+
+A premissa é simples:
+
+> **A rede falha. Sempre.**
+
+Se você projetar como se tudo fosse perfeito, seu sistema vai cair.
+
+Vamos abordar todos os padrões clássicos que entrevistadores esperam ouvir.
+
+---
+
+# 1. Timeouts (Obrigatório)
+
+O pior antipadrão em sistemas distribuídos é:
+
+> “Fiz uma requisição e vou esperar para sempre.”
+
+**Nunca** deixe uma requisição pendurada indefinidamente.
+Sempre configure:
+
+* timeout de conexão
+* timeout de leitura
+* timeout de escrita
+
+### Por quê?
+
+✔ evita que threads, conexões e recursos fiquem travados
+✔ limita o impacto de serviços lentos
+✔ evita deadlocks entre serviços
+
+### Resposta perfeita em entrevistas:
+
+> “Toda chamada de rede deve ter um timeout definido, caso contrário o sistema trava sob degradação.”
+
+---
+
+# 2. Retries (com parcimônia)
+
+Retries são essenciais porque muitas falhas são **transientes**:
+
+* spikes de latência
+* rota temporariamente congestionada
+* servidor reiniciando
+* pacotes perdidos
+
+Mas retries cegos causam:
+
+❌ thundering herd (tempestade de requisições)
+❌ cascatas de falhas
+❌ congestionamento ainda maior
+
+Por isso, retries **sempre devem ser combinados com backoff**.
+
+---
+
+# 3. Exponential Backoff (o padrão mais citado)
+
+O padrão recomendado:
+
+```
+1ª tentativa → aguarde 100 ms  
+2ª tentativa → aguarde 200 ms  
+3ª tentativa → aguarde 400 ms  
+4ª tentativa → aguarde 800 ms  
+...
+```
+
+E:
+
+### ✔ adicione jitter
+
+(randomize um pouco o atraso)
+
+Por quê?
+
+Se 10.000 clientes fizerem retry ao mesmo tempo, você cria:
+
+* pico artificial
+* sobrecarga
+* cascata de falhas
+* colapso do serviço
+
+### Frase perfeita para entrevista:
+
+> “Usaria retries com backoff exponencial e jitter para evitar sincronização de requisições e mitigar cascatas de falhas.”
+
+Essa frase vale ouro.
+
+---
+
+# 4. Idempotência
+
+Retries podem causar problemas catastróficos:
+
+* múltiplas cobranças
+* múltiplas compras
+* duplicação de dados
+* reinserção de registros
+* efeitos colaterais duplicados
+
+Por isso, APIs precisam ser **idempotentes**.
+
+Significa:
+
+> “A mesma requisição pode ser executada N vezes, produzindo sempre o mesmo efeito.”
+
+### Exemplos:
+
+✔ GET é idempotente
+✔ DELETE deve ser idempotente
+✔ PUT deve ser idempotente
+❌ POST normalmente não é
+
+Para tornar POST idempotente, usamos:
+
+### **Idempotency Keys**
+
+O cliente envia:
+
+```
+Idempotency-Key: 8f3c01a1-9c66-4e62-8018-1d76b1429327
+```
+
+O servidor:
+
+* checa se essa operação já foi processada
+* se sim → retorna o resultado anterior
+* se não → processa normalmente
+
+### Frase perfeita:
+
+> “Quando houver risco de duplicação, eu usaria chaves de idempotência e armazenaria o resultado da operação para garantir segurança.”
+
+---
+
+# 5. Circuit Breakers
+
+(A estrela das entrevistas de senior)
+
+Esse é o padrão que mais diferencia candidatos maduros.
+
+Quando um serviço dependente começa a falhar repetidamente:
+
+* timeouts
+* falhas
+* latência alta
+* erros 5xx
+
+continuar tentando vai:
+
+* sobrecarregar ainda mais o serviço
+* travar threads
+* congestionar filas
+* derrubar o próprio sistema
+
+**Circuit Breaker** funciona assim:
+
+```
+Estado FECHADO → tudo normal  
+Falhas acumulam  
+Estado ABERTO → para de enviar requisições e falha imediatamente  
+Tempo passa  
+Estado HALF-OPEN → envia uma requisição teste  
+Se sucesso → volta ao normal  
+Se falha → permanece aberto
+```
+
+Ele protege o sistema de:
+
+* cascatas de falhas
+* thundering herd
+* dependências instáveis
+* downtime prolongado
+
+### Por que entrevistadores amam esse tópico?
+
+✔ mostra experiência real
+✔ demonstra entendimento profundo de falhas distribuídas
+✔ indica mindset de resiliência
+✔ separa devs júnior de devs experientes
+
+### Frase perfeita:
+
+> “Para evitar cascatas de falhas, implementaria um circuit breaker que abre após repetidas falhas, rejeita chamadas imediatamente e tenta recuperar após um período de cooldown.”
+
+---
+
+# 6. Fallbacks (opcional, mas demonstra maturidade)
+
+Quando um serviço falha, podemos oferecer um fallback:
+
+* servir um cache antigo
+* resposta padrão
+* modo degradado
+* retornar valor aproximado
+* exibir resultados do último sucesso
+
+Exemplo:
+
+Se o serviço de recomendações cair → exiba produtos populares.
+
+---
+
+# 7. Bulkheads (Compartimentalização)
+
+Outro padrão avançado:
+
+> “Isole partes do sistema para evitar que falhas se espalhem.”
+
+Como compartimentos de um navio.
+
+Exemplos:
+
+* limitar conexões por serviço
+* usar pools de threads separados
+* usar filas separadas por tipo de tarefa
+
+---
+
+# 8. Rate Limiting (controle de tráfego)
+
+Evita abusos, protege APIs e controla load.
+
+Técnicas:
+
+* token bucket
+* leaky bucket
+* fixed window
+* sliding window
+
+---
+
+# 9. Observabilidade (Logs, métricas e tracing)
+
+Entrevistadores valorizam:
+
+✔ métricas (Prometheus, CloudWatch, Datadog)
+✔ logs estruturados
+✔ tracing distribuído (Jaeger, OpenTelemetry)
+✔ dashboards
+✔ alertas
+
+---
+
+# Resumo da Parte 11
+
+✔ **Timeouts** evitam travamentos
+✔ **Retries** são úteis, mas perigosos
+✔ **Exponential backoff + jitter** é padrão ouro
+✔ **Idempotência** evita duplicação catastrófica
+✔ **Circuit breakers** evitam cascatas de falhas
+✔ **Fallbacks** aumentam resiliência
+✔ **Bulkheads** isolam falhas
+✔ **Rate limiting** protege o sistema
+✔ **Observabilidade** é essencial
+
+Se você levar esses conceitos para sua entrevista, estará **muito acima da média**.
+
+---
+
+# Networking Essentials — Resumo Final
+
+## 1. Camadas Importantes
+- **L3 – Network Layer / IP**: roteamento e endereçamento, entrega “best-effort”.
+- **L4 – Transport Layer / TCP/UDP/QUIC**:
+  - TCP: confiável, ordenado, orientado à conexão.
+  - UDP: rápido, sem garantias, ideal para streaming/games/VoIP.
+  - QUIC: substituto moderno do TCP, usado no HTTP/3.
+- **L7 – Application Layer**:
+  - HTTP/HTTPS, REST, GraphQL, gRPC, SSE, WebSockets, WebRTC.
+
+## 2. Application Protocols
+- **HTTP/HTTPS**: request/response, stateless, simples e universal.
+- **REST**: padrão default para entrevistas; CRUD baseado em recursos.
+- **GraphQL**: ideal para flexibilidade no frontend; evita under/over-fetching.
+- **gRPC**: eficiente, binário, fortemente tipado; perfeito para microserviços internos.
+
+## 3. Real-Time Protocols
+- **SSE**: server → client; leve; ótimo para notificações.
+- **WebSockets**: bidirecional; baixa latência; ideal para chats e jogos.
+- **WebRTC**: comunicação P2P; áudio/vídeo; usa STUN/TURN.
+
+## 4. Load Balancing
+- **Client-side**: o cliente escolhe o servidor (Redis, gRPC LB, DNS).
+- **Server-side**: load balancer dedicado (AWS LB, NGINX, F5).
+- **L4**: opera no TCP/UDP; ótimo para WebSockets.
+- **L7**: opera no HTTP; roteamento inteligente.
+
+Algoritmos:
+- Round Robin, Random, Least Connections, IP Hash.
+
+## 5. Regionalização e Latência
+- CDNs reduzem latência para conteúdo estático.
+- Particionamento regional reduz acesso entre continentes.
+- App + DB devem ficar na mesma região.
+- Multi-AZ e multi-region para alta disponibilidade.
+
+## 6. Falhas e Resiliência
+- **Timeouts** obrigatórios.
+- **Retries + exponential backoff + jitter**.
+- **Idempotência** fundamental para evitar duplicações.
+- **Circuit breakers** evitam cascatas de falhas.
+- **Fallbacks**, **Bulkheads**, **Rate limiting**, **Observabilidade**.
+
+---
+# Checklist Rápido de Networking para Entrevistas
+
+## 🔹 Protocolo
+- O default é **HTTP + REST sobre TCP**.
+- Preciso de real-time?
+  - apenas server → client → **SSE**
+  - bidirecional → **WebSockets**
+  - mídia (áudio/vídeo) → **WebRTC**
+- Inter-service communication?
+  - **gRPC** (se controle total dos clientes)
+  - **REST** para APIs públicas
+
+## 🔹 Escalabilidade
+- **L7 LB** para HTTP.
+- **L4 LB** para WebSockets.
+- Considerar **client-side LB** para microserviços internos.
+- Health checks (TCP/HTTP/gRPC).
+
+## 🔹 Latência
+- Existe público global?
+  - **CDN** para estáticos.
+  - **Regional partitioning** para dados locais.
+  - Evitar trafegar banco entre regiões.
+
+## 🔹 Falhas
+- Implementar:
+  - Timeouts
+  - Retries (com backoff + jitter)
+  - Idempotência
+  - Circuit breakers
+  - Fallbacks e rate limits
+
+## 🔹 Segurança
+- HTTPS obrigatório.
+- Nunca confiar em user IDs no body sem validação.
+- Autenticação → OAuth2/JWT/Mutual TLS (dependendo do cenário).
+
+## 🔹 Observabilidade
+- Logs estruturados
+- Métricas (latência, erro, throughput)
+- Tracing distribuído
+
+
+# Mapa Mental — Networking Essentials
+
+## L3 — IP
+- Roteamento
+- DHCP
+- Endereços públicos/privados
+
+## L4 — TCP/UDP/QUIC
+- TCP → confiável
+- UDP → rápido
+- QUIC → moderno
+
+## L7 Protocols
+- HTTP/HTTPS
+- REST, GraphQL, gRPC
+- SSE, WebSockets, WebRTC
+
+## Load Balancing
+- Client-side (Redis, DNS, gRPC)
+- Server-side
+  - L4 LB
+  - L7 LB
+- Health checks
+- Algoritmos (RR, Random, Least Conns)
+
+## Latência Global
+- CDNs
+- Region partitioning
+- Multi-AZ / Multi-region
+
+## Falhas
+- Timeouts
+- Retries + backoff
+- Idempotência
+- Circuit breakers
+- Fallbacks
+- Bulkheads
+- Rate limiting
+
+
+## A. Load Balancer L7
+     ┌──────────┐
+     │  Cliente │
+     └────┬─────┘
+          │ HTTP
+          ▼
+   ┌──────────────┐
+   │  L7 Load Bal. │
+   └────┬────┬────┘
+        │    │
+        ▼    ▼
+┌──────────┐ ┌──────────┐
+│ Server A │ │ Server B │
+└──────────┘ └──────────┘
+
+## B. WebSockets via L4 LB
+Cliente
+   │
+   ▼
+┌───────────────┐
+│  L4 Load Bal.  │  (conexão persistente)
+└───────┬───────┘
+        │
+        ▼
+┌──────────────┐
+│ WebSocket Srv │
+└──────────────┘
+
+
+## C. Regional Partitioning
+                     Global Users
+                         │
+         ┌───────────────┴───────────────┐
+         │                               │
+     Região EUA                     Região Europa
+     (US-East)                       (EU-West)
+         │                               │
+  ┌──────┴──────┐                ┌───────┴──────┐
+  │  App + DB   │                │   App + DB    │
+  └──────────────┘                └──────────────┘
+
+
+# Glossário — Networking em System Design
+
+**IP** — Protocolo de Roteamento e Endereçamento (Layer 3).
+
+**TCP** — Protocolo confiável, ordenado e orientado à conexão.
+
+**UDP** — Protocolo rápido, sem garantias.
+
+**QUIC** — Substituto moderno do TCP; usado em HTTP/3.
+
+**REST** — Estilo arquitetural baseado em recursos e verbos HTTP.
+
+**GraphQL** — Linguagem de consulta para APIs flexíveis.
+
+**gRPC** — RPC binário e eficiente baseado em HTTP/2 e Protobuf.
+
+**SSE** — Canal unidirecional servidor → cliente para tempo real.
+
+**WebSockets** — Canal persistente e bidirecional.
+
+**WebRTC** — Comunicação P2P com STUN/TURN; ideal para vídeo/áudio.
+
+**Load Balancer** — Distribui tráfego entre múltiplos servidores.
+
+**L4 LB** — Balanceamento no nível TCP/UDP.
+
+**L7 LB** — Balanceamento no nível HTTP.
+
+**CDN** — Rede de distribuição de conteúdo para reduzir latência.
+
+**Region Partitioning** — Separar dados e apps por região geográfica.
+
+**Availability Zones (AZ)** — Datacenters independentes dentro de uma região.
+
+**Timeouts** — Limites de tempo para evitar threads travadas.
+
+**Retry** — Repetir tentativas em falhas transitórias.
+
+**Backoff** — Espera progressiva entre retries.
+
+**Jitter** — Aleatorizar espera para evitar sincronização.
+
+**Idempotência** — Operações que podem ser repetidas sem efeitos duplicados.
+
+**Circuit Breaker** — Proteção contra cascatas de falhas.
+
+**Fallback** — Resposta alternativa quando o serviço falha.
+
+**Bulkhead** — Isolamento de falhas entre componentes.
+
+**Rate Limiting** — Reduz tráfego excessivo.
+
+
 
 
 
