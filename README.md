@@ -16,7 +16,7 @@ Este guia não busca ensinar tudo do zero, e sim acelerar sua preparação com c
 
 A imagem abaixo representa a organização do conteúdo:
 
-![Estrutura do Guia de System Design](/mnt/data/cd61870f-d643-4987-80bc-f00b082bee50.png)
+![Estrutura do Guia de System Design](/assets/introducao-01.png)
 
 A preparação envolve quatro camadas progressivas:
 
