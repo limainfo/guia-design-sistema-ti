@@ -123,3 +123,850 @@ Embora os detalhes específicos dos *handshakes* e *teardowns* de TCP pareçam e
    A menos que usemos recursos como HTTP keep-alive ou multiplexação do HTTP/2, precisamos repetir todo o processo de configuração de conexão para cada requisição — um overhead potencialmente significativo. Isso se torna importante ao projetar sistemas que precisam de conexões persistentes, como aqueles que lidam com atualizações em tempo real (*Realtime Updates*).
 
 ---
+## Parte 2 — Network Layer Protocols (Protocolos da Camada de Rede)
+
+A primeira camada da nossa jornada são os **protocolos da camada de rede**. Essa camada é dominada pelo protocolo **IP**, responsável por **roteamento e endereçamento**.
+
+Em um sistema, nós (ou nossos servidores) normalmente recebemos endereços IP dinamicamente por meio de um **servidor DHCP** quando a máquina inicia. Esses endereços IP são arbitrários — eles só passam a ter significado quando informamos outras pessoas (ou serviços) sobre eles.
+
+Por exemplo:
+Eu posso criar uma rede privada com meus servidores e atribuir qualquer endereço IP que eu quiser para eles. Mas, se você quiser que tráfego da **internet** consiga encontrá-los, então você precisa usar **endereços IP roteáveis**, oficialmente alocados por uma **RIR (Regional Internet Registry)**.
+
+Esses endereços atribuídos são chamados de **IPs públicos** e servem para identificar dispositivos na internet. O mais importante sobre eles é:
+
+* A infraestrutura global de roteamento da internet é totalmente otimizada para trafegar pacotes entre esses IPs.
+* Ela *sabe onde eles estão*.
+
+Por exemplo:
+Qualquer endereço que comece com `17.` (como `17.0.0.0`) pertence à Apple. Os roteadores do backbone da internet sabem que, para enviar pacotes destinados a esses endereços, devem encaminhá-los para os roteadores da Apple.
+
+Existe muito mais sobre roteamento na internet (BGP, ASN, políticas e anúncios de rota...) mas para nossa finalidade aqui — **system design** — podemos manter simples e subir uma camada na pilha: a **camada de transporte**.
+
+---
+
+## Transport Layer Protocols (Protocolos da Camada de Transporte)
+
+A camada de transporte é onde estabelecemos a **comunicação fim a fim entre aplicações**. Ela transforma um amontoado de pacotes desordenados da camada de rede em algo mais utilizável, oferecendo garantias importantes.
+
+Os três protocolos mais importantes desta camada são:
+
+* **TCP**
+* **UDP**
+* **QUIC**
+
+Cada um com características próprias que os tornam adequados para casos de uso diferentes.
+
+Em praticamente todas as entrevistas de system design, a escolha real que você enfrenta é entre:
+
+### ✔ **TCP** versus **UDP**
+
+O **QUIC** é relativamente novo, oferecendo benefícios semelhantes ao TCP com modernizações e melhorias de desempenho — mas ainda não é onipresente. Para efeito de entrevistas, podemos tratá-lo como:
+
+> “Um TCP melhorado, mas ainda não universalmente adotado.”
+
+Alguns entrevistadores mais focados em desempenho podem se impressionar se você mencionar QUIC e HTTP/3, mas grande parte deles vai preferir que você dedique seu tempo a outras partes do design.
+
+---
+
+## UDP — Rápido, porém Não Confiável
+
+O **User Datagram Protocol (UDP)** é o “metralhadora giratória” dos protocolos.
+
+Ele oferece pouquíssimas funcionalidades além do IP, mas é **extremamente rápido**.
+O termo certo é mesmo: *spray and pray*.
+
+Ele fornece um serviço simples, sem conexão, **sem garantias**:
+
+* Sem garantia de entrega
+* Sem garantia de ordem
+* Sem proteção contra duplicação
+
+Quando sua aplicação recebe um datagrama UDP, ela pode ver:
+
+* IP de origem + porta
+* IP de destino + porta
+
+E só. O resto é um *blob* binário.
+
+### Características principais do UDP:
+
+* **Connectionless** — não exige handshakes
+* **Sem confiabilidade** — pacotes podem se perder
+* **Sem ordenação** — pacotes podem chegar embaralhados
+* **Baixa latência** — quase zero overhead
+
+Sem necessidade de conexão parece ótimo, mas a falta de garantia e ordenação… nem tanto. Então, por que usar UDP?
+
+UDP é perfeito quando **velocidade importa mais que confiabilidade**, como em:
+
+* Streaming de vídeo ao vivo
+* Jogos online
+* VoIP
+* Resoluções DNS
+
+Nesses casos, a aplicação pode tolerar perda ou desordem ocasional.
+
+### Exemplo — VoIP
+
+Se alguns pacotes se perderem, o usuário talvez só note um pequeno *glitch* no áudio — ainda melhor do que parar tudo para retransmitir pacotes atrasados.
+
+#### Importante: navegadores têm suporte mínimo a UDP
+
+O único suporte real é via **WebRTC**.
+Se você pensa em usar UDP em um sistema com usuários web, precisará de estratégia alternativa.
+
+---
+
+## TCP — Confiável, porém com Overhead
+
+O **Transmission Control Protocol (TCP)** é o cavalo de batalha da internet.
+
+Ele fornece:
+
+* Confiabilidade
+* Ordenação
+* Checagem de erros
+* Controle de fluxo
+* Controle de congestionamento
+
+E isso vem ao custo de overhead e latência.
+
+Ele estabelece uma conexão por meio de um **three-way handshake**, mantém o estado ao longo da sessão e garante que todos os pacotes sejam entregues e na ordem correta.
+
+Essa conexão é chamada de **stream**.
+
+### Características principais do TCP:
+
+* **Orientado à conexão**
+* **Entrega confiável**
+* **Garantia de ordenação**
+* **Controle de fluxo**
+* **Controle de congestionamento**
+
+TCP é ideal quando **integridade dos dados é crítica**, ou seja: quase tudo que não cabe no modelo UDP.
+
+---
+
+## Quando usar cada protocolo?
+
+### Use **UDP** quando:
+
+* Latência mínima é crucial
+* Alguma perda de dados é aceitável
+* Você tem alto volume de telemetria/logs
+* Você não precisa suportar navegadores (ou tem fallback)
+
+### Use **TCP** quando:
+
+* Você não tem motivo forte para usar UDP
+* Confiabilidade importa
+* A ordem importa
+* Sua aplicação é web tradicional
+
+Em entrevistas, **assuma TCP como padrão**, a menos que diga o contrário.
+
+Se conseguir argumentar corretamente quando UDP faz mais sentido, você ganha pontos extras.
+
+---
+
+## Comparação TCP vs UDP
+
+| Característica        | UDP                    | TCP                   |
+| --------------------- | ---------------------- | --------------------- |
+| Conexão               | Sem conexão            | Orientado à conexão   |
+| Confiabilidade        | Best-effort            | Entrega garantida     |
+| Ordenação             | Não garante            | Garante               |
+| Controle de fluxo     | Não                    | Sim                   |
+| Controle de congestão | Não                    | Sim                   |
+| Tamanho do cabeçalho  | 8 bytes                | 20–60 bytes           |
+| Velocidade            | Mais rápido            | Mais lento (overhead) |
+| Uso ideal             | Streaming, VoIP, jogos | Quase tudo            |
+
+---
+
+## Application Layer Protocols (Protocolos da Camada de Aplicação)
+
+Agora subimos para a camada onde desenvolvedores passam a maior parte do tempo: a **Application Layer**.
+
+Esses protocolos definem **como aplicações se comunicam** e são construídos em cima dos protocolos de transporte (TCP/UDP).
+
+Normalmente, a camada de aplicação roda em **User Space**, enquanto as camadas inferiores (L3–L4) rodam no **Kernel Space**, o que significa:
+
+* Camadas de aplicação são fáceis de modificar
+* Camadas inferiores são difíceis de alterar, mas extremamente eficientes
+
+A seguir, vamos explorar os protocolos mais comuns:
+
+* **HTTP/HTTPS**
+* **REST**
+* **GraphQL**
+* **gRPC**
+
+## Parte 3 — Application Layer Protocols (HTTP/HTTPS, REST)
+
+Agora entramos na camada onde a maior parte dos desenvolvedores realmente vive: **a camada de aplicação**. É aqui que encontramos os protocolos que usamos todos os dias — HTTP, REST, GraphQL, gRPC — que definem como aplicações conversam umas com as outras.
+
+Lembre-se:
+
+* As camadas inferiores (L3 e L4) são rápidas e eficientes, mas rígidas.
+* A camada de aplicação é mais flexível, roda em **User Space** e pode ser adaptada sem precisar alterar o sistema operacional.
+
+Vamos começar com o mais importante:
+
+---
+
+# HTTP/HTTPS — A Base da Web
+
+O **Hypertext Transfer Protocol (HTTP)** é o padrão absoluto de comunicação de dados na web.
+Ele segue o modelo **request–response**:
+
+1. O cliente envia uma requisição HTTP
+2. O servidor responde com uma resposta HTTP
+
+E é **stateless** (sem estado):
+Cada requisição é independente e o servidor não precisa lembrar nada sobre requisições anteriores.
+
+Isso é muito desejável em system design, já que sistemas sem estado (**stateless**) são mais fáceis de escalar horizontalmente.
+
+---
+
+## Exemplo simples de Request/Response
+
+```http
+GET /index.html HTTP/1.1
+Host: example.com
+User-Agent: Chrome
+Accept: text/html
+```
+
+```http
+HTTP/1.1 200 OK
+Content-Type: text/html
+Content-Length: 1024
+
+<html>...</html>
+```
+
+Nesta troca vemos:
+
+* **Métodos/Verbos**: GET, POST, PUT, DELETE
+* **Status Codes**: 200, 404, 500 etc.
+* **Headers**: metadados
+* **Body**: conteúdo real
+
+---
+
+# Métodos HTTP comuns
+
+### **GET**
+
+Busca dados. Não deve modificar nada. Deve ser idempotente.
+
+### **POST**
+
+Envia dados. Usado para criar recursos. Não é idempotente.
+
+### **PUT**
+
+Atualiza um recurso existente. Deve ser idempotente.
+
+### **PATCH**
+
+Atualiza parcialmente um recurso.
+
+### **DELETE**
+
+Remove um recurso. Deve ser idempotente.
+
+---
+
+# Status Codes mais usados
+
+### **2xx — Sucesso**
+
+* **200 OK**
+* **201 Created**
+
+### **3xx — Redirecionamento**
+
+* **301 Moved Permanently**
+* **302 Found**
+
+### **4xx — Erro do Cliente**
+
+* **404 Not Found**
+* **401 Unauthorized**
+* **403 Forbidden**
+* **429 Too Many Requests**
+
+### **5xx — Erro do Servidor**
+
+* **500 Internal Server Error**
+* **502 Bad Gateway**
+
+---
+
+# Headers HTTP — Flexíveis e Poderosos
+
+Headers funcionam como pares chave/valor, permitindo enorme flexibilidade.
+
+Um excelente exemplo de design é **Content Negotiation**, onde o cliente informa o que aceita receber:
+
+```http
+Accept-Encoding: gzip, br
+```
+
+O servidor pode então responder com:
+
+```http
+Content-Encoding: br
+```
+
+Isso permite compactação moderna, fallback, compatibilidade etc.
+
+---
+
+# HTTPS — Segurança com TLS/SSL
+
+HTTPS é simplesmente HTTP + criptografia TLS.
+
+Ele adiciona:
+
+* Criptografia ponta a ponta
+* Integridade
+* Autenticação do servidor
+
+Se você está construindo algo público, **HTTPS é obrigatório**.
+
+⚠️ Mas cuidado:
+Mesmo com HTTPS, **o servidor nunca deve confiar no corpo da requisição** sem validação.
+Exemplo clássico de erro:
+
+> O cliente envia `userId = 123` no body
+> O back-end usa esse ID para consultar o banco
+> Um atacante muda o ID para 999 e acessa dados de outra pessoa
+
+Por isso:
+
+* Sempre valide quem é o usuário autenticado no servidor
+* Nunca confie apenas nos dados enviados pelo cliente
+
+---
+
+# REST — Simples, Flexível e Perfeito para Entrevistas
+
+REST é o paradigma mais comum para APIs em entrevistas de System Design.
+
+Ele se baseia em:
+
+* **Recursos** (resources)
+* **Operações sobre recursos** (GET, POST, PUT, DELETE)
+* **Representações** (normalmente JSON)
+
+REST combina muito bem com a estrutura do HTTP e é fácil de entender, usar e escalar.
+
+---
+
+## Exemplo simples de RESTful API
+
+### **Buscar usuário**
+
+```
+GET /users/{id} → User
+```
+
+### **Atualizar usuário**
+
+```
+PUT /users/{id} → User
+{
+  "username": "john.doe",
+  "email": "john.doe@example.com"
+}
+```
+
+### **Criar usuário**
+
+```
+POST /users → User
+{
+  "username": "stefan.mai",
+  "email": "stefan@hellointerview.com"
+}
+```
+
+### **Recursos aninhados**
+
+```
+GET /users/{id}/posts → [Post]
+```
+
+---
+
+# Importante: Operações ≠ Recursos
+
+Engenheiros costumam pensar em funções como:
+
+* updateUser
+* startGame
+
+Mas isso não é RESTful.
+
+REST deve refletir **recursos**:
+
+* `PUT /users/{id}`
+* `PATCH /games` com `{ "status": "started" }`
+
+---
+
+# Onde Usar REST
+
+REST é excelente para:
+
+* CRUD
+* Microserviços padrão
+* Web e mobile
+* APIs públicas
+* Sistemas que não precisam de altíssima performance
+
+REST **não** é ideal para:
+
+* Alto throughput extremo
+* Baixa latência crítica
+* Comunicação binária compacta
+
+Mas para **entrevistas**, REST é quase sempre o **padrão default**.
+
+---
+## Parte 4 — GraphQL (Flexible Data Fetching)
+
+O **GraphQL** é um paradigma mais recente de APIs (open-source desde 2015, criado pelo Facebook) que permite ao cliente pedir **exatamente os dados que precisa**, nada mais e nada menos.
+
+Ele resolve problemas bem comuns em APIs REST tradicionais, especialmente quando o frontend precisa montar telas complexas com múltiplas fontes de dados.
+
+---
+
+# O Problema que o GraphQL Resolve
+
+Em times tradicionais, temos:
+
+* **Frontend** (web/mobile)
+* **Backend** (API + banco de dados)
+
+Quando o frontend precisa montar uma página complexa, surgem três problemas clássicos:
+
+---
+
+## 1. **Under-Fetching**
+
+O frontend precisa fazer **várias requisições** porque cada endpoint entrega uma parte da informação.
+
+**Exemplo:**
+Para exibir uma lista de usuários com detalhes, precisa:
+
+* `/users`
+* `/users/{id}/profile`
+* `/users/{id}/groups`
+* `/users/{id}/status`
+
+Resultado:
+Muitos round-trips → mais latência → tela lenta.
+
+---
+
+## 2. **Over-Fetching**
+
+O backend tenta “prever o futuro” e cria endpoints gigantes para evitar múltiplas requisições.
+
+Só que:
+
+* Traz dados demais
+* As respostas ficam pesadas
+* A API fica lenta
+* O frontend recebe coisas que nem usa
+
+---
+
+## 3. Criar **novas APIs** para cada nova tela
+
+Os times começam a criar endpoints específicos (“tela home”, “tela de dashboard”, “tela perfil”), gerando:
+
+* Manutenção difícil
+* Explosão de endpoints
+* Rigidez
+* Mudanças lentas
+
+---
+
+# GraphQL resolve tudo isso
+
+GraphQL permite que o frontend diga:
+
+> “Quero estes campos, nestes objetos, nestas relações.”
+
+E o backend retorna **somente isso**, no formato exato.
+
+---
+
+# Exemplo de Query GraphQL
+
+```graphql
+query GetUsersWithProfilesAndGroups($limit: Int = 10, $offset: Int = 0) {
+  users(limit: $limit, offset: $offset) {
+    id
+    username
+    
+    profile {
+      id
+      fullName
+      avatar
+    }
+    
+    groups {
+      id
+      name
+      description
+      
+      category {
+        id
+        name
+        icon
+      }
+    }
+    
+    status {
+      isActive
+      lastActiveAt
+    }
+  }
+  
+  _metadata {
+    totalCount
+    hasNextPage
+  }
+}
+```
+
+Essa única query substitui **dezenas de chamadas REST**.
+O backend interpreta a consulta, busca os dados necessários e retorna **somente os campos solicitados**.
+
+---
+
+# Quando Usar GraphQL
+
+GraphQL brilha quando:
+
+* O frontend muda rápido
+* Existem múltiplas telas diferentes
+* A quantidade de dados enviados precisa ser otimizada
+* O app é mobile (economia de banda → mais rápido)
+* Muitos times consomem a mesma API
+* O cliente precisa fazer queries complexas e profundas
+
+Também funciona muito bem quando:
+
+* Os dados têm relações ricas (User → Profile → Groups → Category)
+
+---
+
+# Desvantagens (Importante para entrevistas!)
+
+Embora GraphQL seja poderoso, há trade-offs:
+
+### ❌ Backend mais complexo
+
+Resolvers podem gerar consultas ruins se não forem bem otimizados.
+
+### ❌ Pode causar *N+1 queries*
+
+Erro clássico: fazer 300 consultas em vez de 1 JOIN.
+
+### ❌ Pode introduzir latência extra
+
+Por exigir parsing e interpretação da query.
+
+### ❌ Não é ideal para throughput altíssimo
+
+REST ou gRPC geralmente vencem nesse caso.
+
+---
+
+# GraphQL em Entrevistas de System Design
+
+Em entrevistas, o uso de GraphQL pode ser uma faca de dois gumes:
+
+### 👍 Quando mencionar
+
+* O entrevistador pede **flexibilidade**
+* Os requisitos mudam rápido
+* A aplicação é um app mobile
+* O frontend é complexo e requer granularidade
+
+### 👎 Quando NÃO mencionar
+
+* O problema é sobre alta performance
+* Há muito tráfego interno entre microserviços
+* O entrevistador está perguntando sobre otimizações de queries
+* A API é pública
+* O problema é relativamente simples (ex: CRUD direto)
+
+---
+
+# Resumo: GraphQL
+
+| Vantagem                  | Significado                           |
+| ------------------------- | ------------------------------------- |
+| Flexível                  | Cliente pede só o que precisa         |
+| Altamente adaptável       | Ideal para apps em rápida evolução    |
+| Evita under/over-fetching | Melhor experiência no frontend        |
+| Perfeito para mobile      | Respostas menores e rápidas           |
+| Útil em times grandes     | API única para múltiplos consumidores |
+
+| Desvantagem                       | Significado                        |
+| --------------------------------- | ---------------------------------- |
+| Backend complexo                  | Resolvers, performance, N+1        |
+| Pode ser mais lento               | Interpretação da query             |
+| Não ideal para throughput extremo | Melhor usar REST/gRPC              |
+| Curva de aprendizado maior        | Devs precisam conhecer a linguagem |
+
+---
+
+## “GraphQL ou REST?” — resposta ideal em entrevista
+
+> *"REST é meu padrão; eu só usaria GraphQL se o problema claramente exigir flexibilidade no consumo dos dados ou se o entrevistador mencionar requisitos voláteis no frontend."*
+
+Perfeito.
+Essa frase mostra maturidade e senso de trade-off.
+
+---
+
+## Parte 5 — gRPC (Efficient Service Communication)
+
+O **gRPC** é um framework de **RPC (Remote Procedure Call)** criado pelo Google.
+Ele é:
+
+* Extremamente rápido
+* Baseado em HTTP/2
+* Usa **Protocol Buffers** (protobuf) como formato de serialização
+* Ideal para comunicação entre microserviços
+
+Pense nele como:
+
+> **“REST + JSON, mas muito mais rápido, mais leve e com tipos fortes.”**
+
+---
+
+# Por que usar Protocol Buffers?
+
+Protocol Buffers são uma alternativa ao JSON:
+
+### JSON (texto):
+
+* Fácil de ler
+* Mas pesado
+* Tem esquema implícito
+* Converte/parsing custa CPU
+* Tamanho maior
+
+### Protobuf (binário):
+
+* Muito leve
+* Performático
+* Estrutura rígida (esquema fixo)
+* Mais rápido para serializar/deserializar
+* Muito menor em bytes
+
+---
+
+# Exemplo: JSON vs Protobuf
+
+### JSON (40 bytes)
+
+```json
+{
+  "id": "123",
+  "name": "John Doe"
+}
+```
+
+### Protobuf (15 bytes)
+
+```
+0A 03 31 32 33 12 08 6A 6F 68 6E 20 64 6F 65
+```
+
+(Esse conteúdo binário representa exatamente os mesmos dados.)
+
+O Protobuf é menor, mais rápido e mais eficiente.
+
+---
+
+# Exemplo de mensagem Protobuf
+
+```protobuf
+message User {
+  string id = 1;
+  string name = 2;
+}
+```
+
+As tags (`= 1`, `= 2`) determinam o identificador de cada campo no formato binário.
+
+---
+
+# Exemplo de um serviço gRPC
+
+```protobuf
+message GetUserRequest {
+  string id = 1;
+}
+
+message GetUserResponse {
+  User user = 1;
+}
+
+service UserService {
+  rpc GetUser (GetUserRequest) returns (GetUserResponse);
+}
+```
+
+Depois, o compilador `protoc` gera automaticamente:
+
+* client stubs (clientes)
+* server stubs (servidores)
+
+em várias linguagens:
+
+* Java
+* Python
+* Go
+* C#
+* Node.js
+* C++
+
+Com isso, você escreve apenas **a lógica** — o restante (serialização, transporte, parsing) é automático.
+
+---
+
+# Recursos importantes do gRPC
+
+Além de ser binário e rápido, o gRPC oferece:
+
+* **Streaming bidirecional**
+* **Streaming server-side**
+* **Streaming client-side**
+* **Deadlines / timeouts integrados**
+* **Client-side load balancing**
+* **Compressão opcional**
+* **Schemas fortemente tipados**
+* **Alta performance**
+
+Ele foi projetado para grandes sistemas distribuídos e microserviços em alta escala (Google, Netflix, Lyft, etc. usam muito).
+
+---
+
+# Quando usar gRPC
+
+Ideal para:
+
+* Comunicação **entre microserviços internos**
+* Ambientes com throughput alto
+* Serviços que trocam muita informação binária
+* Cenários onde a latência é crítica
+* Infraestruturas com volume muito alto
+
+gRPC é **perfeito** quando:
+
+* Você controla o cliente e o servidor
+* Não existe necessidade de interoperar com navegadores
+* Você quer forte tipagem entre times/línguas diferentes
+
+---
+
+# Quando NÃO usar gRPC
+
+Evite gRPC quando:
+
+### ❌ A API é pública
+
+Clientes externos não têm suporte universal ao gRPC.
+
+### ❌ Clientes incluem navegadores
+
+Browsers **não suportam gRPC nativamente**.
+Eles suportam **apenas gRPC-web** (que não é exatamente o mesmo protocolo).
+
+### ❌ Você precisa debugar com facilidade
+
+Mensagens binárias não são tão humanamente legíveis quanto JSON.
+
+### ❌ A equipe não domina Protobuf
+
+A curva de aprendizado pode atrapalhar projetos simples.
+
+---
+
+# “gRPC no lado interno e REST no lado externo”
+
+Esse é um padrão extremamente comum:
+
+```
+  [Client Web/Mobile]  → REST/HTTP →  [API Gateway]  → gRPC → [Microservices]
+```
+
+Usar:
+
+* **REST** para consumo externo
+* **gRPC** para comunicação interna
+
+combina:
+
+* facilidade do JSON
+* velocidade do gRPC
+* tipagem forte
+* alta performance interna
+
+É o melhor dos dois mundos.
+
+---
+
+# Melhor resposta para uma entrevista
+
+Se o entrevistador perguntar sobre protocolos de serviço a serviço:
+
+> *"Eu usaria REST para APIs públicas e gRPC para comunicação interna entre microserviços, já que gRPC oferece menor latência, melhor throughput e forte tipagem."*
+
+Simples, correto, elegante.
+
+---
+
+# Resumo
+
+| Característica | REST          | gRPC                   |
+| -------------- | ------------- | ---------------------- |
+| Protocolo      | HTTP 1.1      | HTTP/2                 |
+| Formato        | JSON          | Protobuf (binário)     |
+| Performance    | Média         | Muito alta             |
+| Streaming      | Limitado      | Completo               |
+| Tipagem        | Fraca         | Forte                  |
+| Navegadores    | Suporte total | Não suportado          |
+| Ideal para     | APIs públicas | Microserviços internos |
+
+---
+
+Se quiser, seguimos agora para:
+
+### ✔ **Parte 6 — SSE (Server-Sent Events)**
+
+ou
+
+### ✔ **Parte 7 — WebSockets**
+
+ou
+
+### ✔ Continue seguindo a ordem original
+
+Diga: **“Parte 6”**.
+
+
+
