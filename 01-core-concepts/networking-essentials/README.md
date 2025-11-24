@@ -40,6 +40,8 @@ Embora toda a pilha de rede seja fascinante, há três camadas principais que ap
 
 #### Camadas OSI
 
+![Network Layers](assets/core-concepts/networking-essentials/assets/01-osi-layers.png)
+
 ##### Network Layer (Layer 3)
 
 Nessa camada está o IP, o protocolo que cuida de roteamento e endereçamento. Ele é responsável por quebrar os dados em pacotes, encaminhar pacotes entre redes e oferecer entrega “best-effort” (melhor esforço) para qualquer endereço IP de destino na rede.
@@ -65,6 +67,9 @@ Quando você digita uma URL no navegador, várias camadas de protocolos de rede 
 Primeiro usamos DNS para converter um nome de domínio legível por humanos, como `hellointerview.com`, em um endereço IP como `32.42.52.62`. Em seguida, começa uma série de etapas cuidadosamente orquestradas: configuramos uma conexão TCP sobre IP, enviamos nossa requisição HTTP, recebemos uma resposta e finalizamos a conexão.
 
 Em detalhes:
+
+![Simple Web Request](assets/core-concepts/networking-essentials/assets/02-simple-http-request.png)
+
 
 #### Simple HTTP Request
 
@@ -118,5 +123,3 @@ Embora os detalhes específicos dos *handshakes* e *teardowns* de TCP pareçam e
    A menos que usemos recursos como HTTP keep-alive ou multiplexação do HTTP/2, precisamos repetir todo o processo de configuração de conexão para cada requisição — um overhead potencialmente significativo. Isso se torna importante ao projetar sistemas que precisam de conexões persistentes, como aqueles que lidam com atualizações em tempo real (*Realtime Updates*).
 
 ---
-
-> Quando quiser, posso seguir com a **Parte 2**, começando em **Network Layer Protocols** e avançando pela pilha.
