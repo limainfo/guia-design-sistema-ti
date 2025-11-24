@@ -331,6 +331,7 @@ Isso é muito desejável em system design, já que sistemas sem estado (**statel
 ---
 
 ## Exemplo simples de Request/Response
+![Simple http request response](/assets/core-concepts/networking-essentials/03-simple-http-request-response.png)
 
 ```http
 GET /index.html HTTP/1.1
@@ -561,6 +562,8 @@ Quando o frontend precisa montar uma página complexa, surgem três problemas cl
 
 O frontend precisa fazer **várias requisições** porque cada endpoint entrega uma parte da informação.
 
+![Under fetching](/assets/core-concepts/networking-essentials/04-under-fetching.png)
+
 **Exemplo:**
 Para exibir uma lista de usuários com detalhes, precisa:
 
@@ -584,6 +587,8 @@ Só que:
 * As respostas ficam pesadas
 * A API fica lenta
 * O frontend recebe coisas que nem usa
+
+![Over fetching](/assets/core-concepts/networking-essentials/05-over-fetching.png)
 
 ---
 
@@ -913,6 +918,7 @@ Esse é um padrão extremamente comum:
 ```
   [Client Web/Mobile]  → REST/HTTP →  [API Gateway]  → gRPC → [Microservices]
 ```
+![Example Grpc](/assets/core-concepts/networking-essentials/06-example-grpc.png)
 
 Usar:
 
@@ -1243,6 +1249,8 @@ socket.onmessage = (event) => {
 
 O servidor recebe a mensagem e pode responder de volta **na mesma conexão**.
 
+![Example Websocket](/assets/core-concepts/networking-essentials/07-example-websockets.png)
+
 ---
 
 # WebSocket NÃO define formato de mensagem
@@ -1429,6 +1437,8 @@ Para conectar dois navegadores (peer A e peer B), o WebRTC precisa de três peç
 3. **TURN server (fallback)**
    Um “correio” que retransmite os dados quando o P2P direto não funciona.
 
+![Example WebRtc](/assets/core-concepts/networking-essentials/08-example-webrtc.png)
+
 ---
 
 # O fluxo WebRTC (as 4 etapas)
@@ -1579,6 +1589,8 @@ Essa frase demonstra maturidade técnica e entendimento de trade-offs.
 
 Agora entramos em um dos assuntos **mais cobrados em entrevistas de System Design**: **load balancing**.
 
+![Scalling vertical x horizontal](/assets/core-concepts/networking-essentials/09-scalling-verticalxhorizontal.png)
+
 Load balancers são essenciais para:
 
 * escalar horizontalmente
@@ -1591,6 +1603,7 @@ Load balancers são essenciais para:
 E fazem isso tanto no nível **cliente** (client-side load balancing) quanto no nível **servidor** (dedicated load balancers).
 
 Vamos começar pelo básico.
+
 
 ---
 
@@ -1652,6 +1665,8 @@ Desvantagens:
 
 Para entrevistas, **horizontal** é quase sempre o caminho.
 
+![Router trafic](/assets/core-concepts/networking-essentials/10-router-trafic.png)
+
 ---
 
 # Tipos de Load Balancing
@@ -1662,6 +1677,7 @@ Existem dois modelos principais:
 2. **Dedicated load balancer (server-side)**
 
 Vamos explorar ambos.
+
 
 ---
 
@@ -1727,6 +1743,9 @@ Cada cliente vê uma ordem diferente → requests vão para servidores diferente
 ❌ Quando a lista de servidores muda frequentemente
 ❌ Quando você não controla o código cliente
 
+
+![Client side load balancer](/assets/core-concepts/networking-essentials/11-client-side-load-balancing.png)
+
 ---
 
 # 2. Dedicated Load Balancer (server-side)
@@ -1734,6 +1753,8 @@ Cada cliente vê uma ordem diferente → requests vão para servidores diferente
 O modelo mais comum.
 
 Existe um componente dedicado entre cliente e servidor:
+
+![Dedicated Load Balancer](/assets/core-concepts/networking-essentials/12-dedicated-load-balancer.png)
 
 ```
 Cliente → Load Balancer → Servidores
@@ -1791,6 +1812,8 @@ Ele roteia tráfego baseando-se apenas em:
 * Tráfego binário
 * Alta performance
 
+![Http request with load balancer L4](/assets/core-concepts/networking-essentials/13-http-request-with-l4-load-balancer.png)
+
 ---
 
 # Layer 7 Load Balancer (HTTP/HTTPS)
@@ -1819,6 +1842,8 @@ E pode tomar decisões inteligentes:
 * APIs públicas
 * Websites
 * Routers inteligentes de URL
+
+![Http request with load balancer L7](/assets/core-concepts/networking-essentials/14-http-request-with-l7-load-balancer.png)
 
 ---
 
@@ -2609,7 +2634,10 @@ Algoritmos:
 - Rate limiting
 
 
-## A. Load Balancer L7
+
+### A. Load Balancer L7
+
+```
      ┌──────────┐
      │  Cliente │
      └────┬─────┘
@@ -2623,8 +2651,11 @@ Algoritmos:
 ┌──────────┐ ┌──────────┐
 │ Server A │ │ Server B │
 └──────────┘ └──────────┘
+```
 
-## B. WebSockets via L4 LB
+### B. WebSockets via L4 LB
+
+```
 Cliente
    │
    ▼
@@ -2636,9 +2667,11 @@ Cliente
 ┌──────────────┐
 │ WebSocket Srv │
 └──────────────┘
+```
 
+### C. Regional Partitioning
 
-## C. Regional Partitioning
+```
                      Global Users
                          │
          ┌───────────────┴───────────────┐
@@ -2649,6 +2682,8 @@ Cliente
   ┌──────┴──────┐                ┌───────┴──────┐
   │  App + DB   │                │   App + DB    │
   └──────────────┘                └──────────────┘
+```
+
 
 
 # Glossário — Networking em System Design
