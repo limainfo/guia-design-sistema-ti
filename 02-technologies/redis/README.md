@@ -135,10 +135,15 @@ No modo cluster:
 
 ```mermaid
 flowchart LR
-    Client -->|hash(key)| Slot
-    Slot --> NodeA
-    Slot --> NodeB
-    Slot --> NodeC
+    Client[Redis Client]
+    SLOT[Hash Slot]
+    NodeA[Redis Node A]
+    NodeB[Redis Node B]
+    NodeC[Redis Node C]
+    Client -->|hash_key| SLOT
+    SLOT --> NodeA
+    SLOT --> NodeB
+    SLOT --> NodeC
 ```
 
 🧠 Pense nos hash slots como uma **lista telefônica**: o cliente sabe exatamente onde buscar cada chave.
