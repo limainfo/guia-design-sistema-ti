@@ -26,8 +26,6 @@ Tudo funciona bem no começo.
 
 ![Image](https://images.wondershare.com/edrawmax/templates/network-diagram-for-client-server.png)
 
-![Image](https://media.geeksforgeeks.org/wp-content/uploads/20230509110722/DBMS-1-Tier-Architecture.webp)
-
 Mas o sucesso traz novos desafios.
 
 À medida que a plataforma cresce e passa a hospedar mais eventos, **um único banco de dados não consegue mais suportar a carga**. Surge então a necessidade de distribuir os dados entre múltiplos bancos — processo conhecido como **sharding**.
@@ -77,8 +75,6 @@ database_id = hash(event_id) % 4
 ```
 
 Você faz o deploy… e de repente **a atividade no banco de dados explode** — em todos os nós, não apenas no novo.
-
-![Image](https://miro.medium.com/v2/resize%3Afit%3A1400/1%2AUp-E-fdOegkltj4FlSypjw.png)
 
 ![Image](https://miro.medium.com/0%2AT-jz4NLW7xhiT9rR)
 
@@ -140,10 +136,19 @@ Funcionamento básico:
    * Caminhamos no sentido horário no anel
    * O primeiro banco encontrado é o responsável pelo dado
 
-![Image](https://assets.bytebytego.com/diagrams/0151-consistent-hashing.png)
 
-![Image](https://i.sstatic.net/LtNuJ.jpg)
+```mermaid
+sequenceDiagram
+    participant E as Event 1234
+    participant H as Hash Function
+    participant R as Hash Ring
+    participant DB2 as DB2 (pos 25)
 
+    E->>H: hash(1234)
+    H-->>R: 16
+    R->>R: walk clockwise
+    R-->>DB2: first node ≥ 16
+```
 > Na prática, o espaço de hash costuma ser de `0` a `2³² - 1`, mas o conceito é o mesmo.
 
 ---
@@ -152,10 +157,45 @@ Funcionamento básico:
 
 Suponha que adicionamos um novo banco na posição `90`.
 
-![Image](https://ik.imagekit.io/ably/ghost/prod/2022/07/node-c-added%402x.png)
+```mermaid
+flowchart LR
+    %% Hash Ring - DB5 added
 
-![Image](https://substackcdn.com/image/fetch/%24s_%21SIxn%21%2Cf_auto%2Cq_auto%3Agood%2Cfl_progressive%3Asteep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F9509965c-dc33-4f80-8bc6-9eb2d2275295_800x640.png)
+    subgraph HASH_RING["Hash Ring (0–99)"]
+        DB1["DB1<br>pos=0"]
+        DB2["DB2<br>pos=25"]
+        DB3["DB3<br>pos=50"]
+        DB4["DB4<br>pos=75"]
+        DB5["DB5<br>pos=90 (new)"]
 
+        RANGE["Events hashed\n(75–90]"]
+    end
+
+    %% Previous mapping
+    RANGE -->|before| DB1
+
+    %% New mapping
+    RANGE -->|after| DB5
+
+    %% Ring order (clockwise)
+    DB1 --> DB2 --> DB3 --> DB4 --> DB5 --> DB1
+```
+## Situação representada na imagem 
+
+* Espaço de hash: `0–99`
+* Bancos:
+
+  * DB1 → `0`
+  * DB2 → `25`
+  * DB3 → `50`
+  * DB4 → `75`
+  * **DB5 → `90` (novo nó)**
+* Regra do consistent hashing:
+
+  * **Somente os eventos no intervalo (75, 90] são realocados**
+  * Antes → iam para **DB1**
+  * Agora → passam a ir para **DB5**
+  * 
 O que acontece?
 
 * **Somente os eventos entre 75 e 90 precisam ser movidos**
@@ -173,10 +213,68 @@ Resultado:
 
 Agora imagine que o banco da posição `25` falhe.
 
-![Image](https://substackcdn.com/image/fetch/%24s_%21-1Fg%21%2Cf_auto%2Cq_auto%3Agood%2Cfl_progressive%3Asteep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F606d0829-347a-49a9-8f7b-b7c9d45c5bff_800x640.png)
+# 🔄 Remoção de um Nó — DB2 falhando (Consistent Hashing)
 
-![Image](https://media.licdn.com/dms/image/v2/D5612AQFBGRogyvHq9g/article-inline_image-shrink_1000_1488/article-inline_image-shrink_1000_1488/0/1666714208557?e=2147483647\&t=_txBOfnE54AXuOtGAnRYesHafLRd2z3WTW2iQlEODII\&v=beta)
+## Situação inicial (antes da falha)
 
+* Espaço de hash: `0–99`
+* Bancos:
+
+  * DB1 → `0`
+  * **DB2 → `25`**
+  * DB3 → `50`
+  * DB4 → `75`
+* Regra:
+
+  * Cada evento vai para o **primeiro nó no sentido horário**
+
+---
+
+## O que acontece quando DB2 falha?
+
+👉 **Somente os eventos que eram mapeados para DB2 precisam ser movidos**
+
+* Intervalo afetado: `(0, 25]`
+* Antes: `(0, 25] → DB2`
+* Depois: `(0, 25] → DB3`
+* Todos os demais dados permanecem **exatamente onde estavam**
+
+---
+
+## Mermaid — Remoção do DB2
+
+```mermaid
+flowchart LR
+    %% Hash Ring - DB2 removed
+
+    subgraph HASH_RING["Hash Ring (0–99)"]
+        DB1["DB1<br>pos=0"]
+        DB3["DB3<br>pos=50"]
+        DB4["DB4<br>pos=75"]
+
+        RANGE["Events hashed\n(0–25]"]
+    end
+
+    %% Mapping change
+    RANGE -->|before| DB2["DB2 (failed)\npos=25"]
+    RANGE -->|after| DB3
+
+    %% Ring order after removal
+    DB1 --> DB3 --> DB4 --> DB1
+```
+
+---
+
+## Correspondência direta com o hash ring real
+
+| Elemento          | Significado                               |
+| ----------------- | ----------------------------------------- |
+| `(0–25]`          | Intervalo que era responsabilidade do DB2 |
+| `before → DB2`    | Mapeamento original                       |
+| `after → DB3`     | Novo destino após a falha                 |
+| Outros intervalos | **Nenhuma mudança**                       |
+
+---
 * Apenas os dados mapeados para esse banco precisam ser movidos
 * Eles passam a ir para o próximo banco no sentido horário (`50`)
 * Todo o resto permanece intacto
@@ -197,10 +295,68 @@ Em vez de posicionar cada banco em **um único ponto** do anel, nós o posiciona
 * `"DB1-vn2"`
 * `"DB1-vn3"`
 
-![Image](https://substackcdn.com/image/fetch/%24s_%212Bh4%21%2Cf_auto%2Cq_auto%3Agood%2Cfl_progressive%3Asteep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fb6a01929-75d6-4885-a400-602f588b0f69_1636x1362.png)
+## 🧩 Mermaid — DB2 com Virtual Nodes e Falha (vn1, vn2, vn3)
 
-![Image](https://towardsdatascience.com/wp-content/uploads/2024/03/17LVorrsJU4a94kyOO6UCPw.png)
+### Exemplo (ring 0–99) com vnodes intercalados
 
+* DB1: posições 5, 40, 72
+* DB2: posições **18, 31, 89** (vai falhar)
+* DB3: posições 25, 55, 95
+* DB4: posições 10, 63, 80
+
+Quando DB2 cai:
+
+* o intervalo que apontava para **DB2-vn1(18)** vai para o próximo vnode (clockwise) → **DB3-vn1(25)**
+* o intervalo que apontava para **DB2-vn2(31)** vai para o próximo → **DB1-vn2(40)**
+* o intervalo que apontava para **DB2-vn3(89)** vai para o próximo → **DB3-vn3(95)**
+
+---
+
+```mermaid
+flowchart LR
+  %% Consistent Hashing with Virtual Nodes - DB2 fails
+
+  subgraph RING["Hash Ring (0–99) - clockwise order (sample positions)"]
+    V1["DB1-vn1\npos=5"]
+    V4["DB4-vn1\npos=10"]
+    B1["DB2-vn1\npos=18 (FAILED)"]
+    V3["DB3-vn1\npos=25"]
+    B2["DB2-vn2\npos=31 (FAILED)"]
+    V2["DB1-vn2\npos=40"]
+    V5["DB3-vn2\npos=55"]
+    V6["DB4-vn2\npos=63"]
+    V7["DB1-vn3\npos=72"]
+    V8["DB4-vn3\npos=80"]
+    B3["DB2-vn3\npos=89 (FAILED)"]
+    V9["DB3-vn3\npos=95"]
+  end
+
+  %% Clockwise ring links (visual guidance)
+  V1 --> V4 --> B1 --> V3 --> B2 --> V2 --> V5 --> V6 --> V7 --> V8 --> B3 --> V9 --> V1
+
+  %% Intervals that were owned by DB2's vnodes
+  I1["Keys in (10–18]"] -->|before| B1
+  I2["Keys in (25–31]"] -->|before| B2
+  I3["Keys in (80–89]"] -->|before| B3
+
+  %% After DB2 failure: each interval maps to the next vnode clockwise
+  I1 -->|after| V3
+  I2 -->|after| V2
+  I3 -->|after| V9
+```
+---
+## O que isso demonstra (exatamente o ponto dos virtual nodes)
+
+* Sem vnodes: **toda a carga do DB2 iria para o DB3** (vizinho imediato).
+* Com vnodes: a carga do DB2 é **dividida**:
+
+  * Parte vai para DB3
+  * Parte vai para DB1
+  * Outra parte vai para DB3 de novo (outro vnode), etc.
+
+Ou seja: **falha de um nó → redistribuição mais uniforme**.
+
+---
 Isso faz com que os nós virtuais fiquem espalhados pelo anel.
 
 ### Benefício
