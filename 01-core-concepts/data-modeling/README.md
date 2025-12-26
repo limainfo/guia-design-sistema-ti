@@ -15,32 +15,32 @@ Isso já é suficiente para a maioria dos entrevistadores perceber que seu model
 
 ```mermaid
 erDiagram
-    USERS {
-        bigint userId PK
-        varchar name
-        varchar email UNIQUE
-        timestamp createdAt
-    }
+  USERS {
+    userId PK
+    name
+    email UNIQUE
+    createdAt
+  }
 
-    POSTS {
-        bigint postId PK
-        bigint userId FK
-        text content
-        text mediaUrls
-        timestamp createdAt
-    }
+  POSTS {
+    postId PK
+    userId FK
+    content
+    mediaUrls
+    createdAt
+  }
 
-    COMMENTS {
-        bigint commentId PK
-        bigint postId FK
-        bigint userId FK
-        text content
-        timestamp createdAt
-    }
+  COMMENTS {
+    commentId PK
+    postId FK
+    userId FK
+    content
+    createdAt
+  }
 
-    USERS ||--o{ POSTS : "creates"
-    USERS ||--o{ COMMENTS : "writes"
-    POSTS ||--o{ COMMENTS : "has"
+  USERS ||--o{ POSTS : creates
+  USERS ||--o{ COMMENTS : writes
+  POSTS ||--o{ COMMENTS : has
 ```
 ---
 
@@ -186,59 +186,50 @@ Modelo extremamente plano, altamente desnormalizado, com dados duplicados para s
 
 ```mermaid
 flowchart LR
-  %% =========================
-  %% 1) Runtime flow (cache-first)
-  %% =========================
   S[Server]
   KV[(Key-Value Store)]
-  PG[(Database\n(Postgres))]
+  PG[(Database (Postgres))]
 
-  S -- "1. Check cache" --> KV
-  S -- "2. If miss, check DB" --> PG
-  PG -. "Populate cache\n(flattened document\nbased on query pattern)" .-> KV
+  S -->|1. Check cache| KV
+  S -->|2. If miss, check DB| PG
+  PG -.->|Populate cache (flattened doc by query pattern)| KV
 
-  %% =========================
-  %% 2) Data model (logical tables)
-  %% =========================
-  subgraph PG_SCHEMA["Postgres Schema"]
+  subgraph PG_SCHEMA[Postgres Schema]
     direction TB
 
-    subgraph USERS_T["Users"]
+    subgraph USERS_T[Users]
       direction TB
-      U1["userId (pk)"]
-      U2["name"]
-      U3["email (unique)"]
-      U4["createdAt"]
+      U1[userId (pk)]
+      U2[name]
+      U3[email (unique)]
+      U4[createdAt]
     end
 
-    subgraph POSTS_T["Posts"]
+    subgraph POSTS_T[Posts]
       direction TB
-      P1["postId (pk)"]
-      P2["userId (fk, index)"]
-      P3["content"]
-      P4["mediaUrls"]
-      P5["createdAt (index)"]
+      P1[postId (pk)]
+      P2[userId (fk, index)]
+      P3[content]
+      P4[mediaUrls]
+      P5[createdAt (index)]
     end
 
-    subgraph COMMENTS_T["Comments"]
+    subgraph COMMENTS_T[Comments]
       direction TB
-      C1["commentId (pk)"]
-      C2["postId (fk, index)"]
-      C3["userId (fk, index)"]
-      C4["content"]
-      C5["createdAt (index)"]
+      C1[commentId (pk)]
+      C2[postId (fk, index)]
+      C3[userId (fk, index)]
+      C4[content]
+      C5[createdAt (index)]
     end
 
-    %% Relationships
     U1 -->|1:N| P2
     U1 -->|1:N| C3
     P1 -->|1:N| C2
   end
 
-  %% Tie the schema to the DB node
   PG --- PG_SCHEMA
 
-  %% Styling (similar emphasis as the image)
   style KV stroke:#1f77ff,stroke-width:3px
 ```
 
@@ -480,40 +471,32 @@ Segue o **Mermaid final**, limpo e fiel ao *Final Whiteboard*, focado apenas no 
 
 ```mermaid
 erDiagram
-    USERS {
-        bigint userId PK
-        varchar name
-        varchar email UNIQUE
-        timestamp createdAt
-    }
+  USERS {
+    userId PK
+    name
+    email UNIQUE
+    createdAt
+  }
 
-    POSTS {
-        bigint postId PK
-        bigint userId FK
-        text content
-        text mediaUrls
-        timestamp createdAt
-    }
+  POSTS {
+    postId PK
+    userId FK
+    content
+    mediaUrls
+    createdAt
+  }
 
-    COMMENTS {
-        bigint commentId PK
-        bigint postId FK
-        bigint userId FK
-        text content
-        timestamp createdAt
-    }
+  COMMENTS {
+    commentId PK
+    postId FK
+    userId FK
+    content
+    createdAt
+  }
 
-    %% Relationships
-    USERS ||--o{ POSTS : "creates"
-    USERS ||--o{ COMMENTS : "writes"
-    POSTS ||--o{ COMMENTS : "has"
-
-    %% Index notes (implicit in the whiteboard)
-    %% POSTS.userId -> index
-    %% POSTS.createdAt -> index
-    %% COMMENTS.postId -> index
-    %% COMMENTS.userId -> index
-    %% COMMENTS.createdAt -> index
+  USERS ||--o{ POSTS : creates
+  USERS ||--o{ COMMENTS : writes
+  POSTS ||--o{ COMMENTS : has
 ```
 
 ---
