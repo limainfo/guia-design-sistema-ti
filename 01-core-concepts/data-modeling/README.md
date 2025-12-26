@@ -16,32 +16,44 @@ Isso já é suficiente para a maioria dos entrevistadores perceber que seu model
 ```mermaid
 erDiagram
   USERS {
-    userId PK
-    name
-    email UNIQUE
-    createdAt
+    string userId
+    string name
+    string email
+    string createdAt
   }
-
   POSTS {
-    postId PK
-    userId FK
-    content
-    mediaUrls
-    createdAt
+    string postId
+    string userId
+    string content
+    string mediaUrls
+    string createdAt
   }
-
   COMMENTS {
-    commentId PK
-    postId FK
-    userId FK
-    content
-    createdAt
+    string commentId
+    string postId
+    string userId
+    string content
+    string createdAt
   }
-
   USERS ||--o{ POSTS : creates
   USERS ||--o{ COMMENTS : writes
   POSTS ||--o{ COMMENTS : has
 ```
+**Keys**:
+- USERS.userId → PK
+- POSTS.postId → PK
+- COMMENTS.commentId → PK
+
+**Relationships**:
+- POSTS.userId → USERS.userId
+- COMMENTS.postId → POSTS.postId
+- COMMENTS.userId → USERS.userId
+
+**Indexes**:
+- posts(userId, createdAt)
+- comments(postId, createdAt)
+
+
 ---
 
 ## Modelagem de Dados em uma Entrevista
@@ -188,48 +200,47 @@ Modelo extremamente plano, altamente desnormalizado, com dados duplicados para s
 flowchart LR
   S[Server]
   KV[(Key-Value Store)]
-  PG[(Database (Postgres))]
+  PG[(Database Postgres)]
 
-  S -->|1. Check cache| KV
-  S -->|2. If miss, check DB| PG
-  PG -.->|Populate cache (flattened doc by query pattern)| KV
+  S -->|Check cache| KV
+  S -->|If miss check DB| PG
+  PG -.->|Populate cache flattened doc| KV
 
   subgraph PG_SCHEMA[Postgres Schema]
     direction TB
 
     subgraph USERS_T[Users]
       direction TB
-      U1[userId (pk)]
+      U1[userId]
       U2[name]
-      U3[email (unique)]
+      U3[email]
       U4[createdAt]
     end
 
     subgraph POSTS_T[Posts]
       direction TB
-      P1[postId (pk)]
-      P2[userId (fk, index)]
+      P1[postId]
+      P2[userId]
       P3[content]
       P4[mediaUrls]
-      P5[createdAt (index)]
+      P5[createdAt]
     end
 
     subgraph COMMENTS_T[Comments]
       direction TB
-      C1[commentId (pk)]
-      C2[postId (fk, index)]
-      C3[userId (fk, index)]
+      C1[commentId]
+      C2[postId]
+      C3[userId]
       C4[content]
-      C5[createdAt (index)]
+      C5[createdAt]
     end
 
-    U1 -->|1:N| P2
-    U1 -->|1:N| C3
-    P1 -->|1:N| C2
+    U1 --> P2
+    U1 --> C3
+    P1 --> C2
   end
 
   PG --- PG_SCHEMA
-
   style KV stroke:#1f77ff,stroke-width:3px
 ```
 
@@ -472,32 +483,43 @@ Segue o **Mermaid final**, limpo e fiel ao *Final Whiteboard*, focado apenas no 
 ```mermaid
 erDiagram
   USERS {
-    userId PK
-    name
-    email UNIQUE
-    createdAt
+    bigint userId
+    varchar name
+    varchar email
+    timestamp createdAt
   }
-
   POSTS {
-    postId PK
-    userId FK
-    content
-    mediaUrls
-    createdAt
+    bigint postId
+    bigint userId
+    text content
+    text mediaUrls
+    timestamp createdAt
   }
-
   COMMENTS {
-    commentId PK
-    postId FK
-    userId FK
-    content
-    createdAt
+    bigint commentId
+    bigint postId
+    bigint userId
+    text content
+    timestamp createdAt
   }
-
   USERS ||--o{ POSTS : creates
   USERS ||--o{ COMMENTS : writes
   POSTS ||--o{ COMMENTS : has
 ```
+**Keys**
+- USERS.userId → PK
+- POSTS.postId → PK
+- COMMENTS.commentId → PK
+- USERS.email → UNIQUE
+
+**Relationships**
+- POSTS.userId → USERS.userId
+- COMMENTS.postId → POSTS.postId
+- COMMENTS.userId → USERS.userId
+
+**Indexes**
+- posts(userId, createdAt)
+- comments(postId, createdAt)
 
 ---
 
