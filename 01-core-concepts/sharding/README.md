@@ -119,11 +119,11 @@ Solução clássica: **consistent hashing** (move menos dados ao mudar N).
 
 ```mermaid
 flowchart LR
-  A[Request<br/>user_id=123] --> H[hash(user_id)]
-  H --> M[mod N shards]
-  M -->|shard=1| S1[(Shard 1)]
-  M -->|shard=2| S2[(Shard 2)]
-  M -->|shard=3| S3[(Shard 3)]
+  A[Request user_id=123] --> H[hash_user_id]
+  H --> M[mod_N]
+  M -->|shard_1| S1[(Shard 1)]
+  M -->|shard_2| S2[(Shard 2)]
+  M -->|shard_3| S3[(Shard 3)]
 ```
 
 ### 3) Directory-based sharding
