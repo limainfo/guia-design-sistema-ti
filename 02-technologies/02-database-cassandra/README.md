@@ -36,6 +36,73 @@ Os principais conceitos do modelo de dados do Cassandra são:
   ➜ Cada coluna possui um **timestamp**
   ➜ Conflitos são resolvidos por **Last Write Wins**
 
+
+## Mermaid — Cassandra Data Model (Keyspace / Tables / Rows)
+
+```mermaid
+flowchart LR
+    %% =========================
+    %% Keyspace
+    %% =========================
+    subgraph KS["Keyspace: chat"]
+        direction LR
+
+        %% =========================
+        %% Users Table
+        %% =========================
+        subgraph USERS["Table: users"]
+            direction TB
+
+            U1["Row: user_id = 101
+            ─ name: Evan
+            ─ email: evan@example.com
+            ─ age: 15"]
+
+            U2["Row: user_id = 102
+            ─ name: Stefan
+            ─ email: stefan@example.com
+            ─ age: 25
+            ─ address: 2436 Data St, Seattle WA"]
+        end
+
+        %% =========================
+        %% Messages Table
+        %% =========================
+        subgraph MSGS["Table: messages"]
+            direction TB
+
+            M1["Row: msg_id = 5
+            ─ sender: Evan
+            ─ text: 'I love cassandra'"]
+
+            M2["Row: msg_id = 6
+            ─ sender: Evan
+            ─ text: 'Check out hellointerview.com!'"]
+        end
+    end
+```
+
+---
+
+## 🧠 Observações importantes (didáticas)
+
+* **Keyspace (`chat`)**
+  ➜ Contêiner lógico de alto nível (equivalente a um *database*)
+
+* **Tables independentes (`users` e `messages`)**
+  ➜ Não existe relação implícita entre tabelas em Cassandra
+  ➜ O campo `sender` **não é foreign key**
+
+* **Wide-column behavior evidenciado**
+  ➜ `address` existe apenas no `user_id = 102`
+  ➜ Isso é **esperado e normal** em Cassandra
+
+* **Rows identificadas por Primary Key**
+  ➜ `user_id` e `msg_id` representam a identidade da linha
+  ➜ A imagem não entra em partition/clustering key (corretamente)
+
+
+
 ### Cassandra como JSON
 
 ```json
