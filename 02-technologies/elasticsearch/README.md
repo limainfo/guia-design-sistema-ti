@@ -1,12 +1,6 @@
 ## Elasticsearch
 
-![Image](https://www.elastic.co/docs/deploy-manage/images/cloud-enterprise-ece-architecture.png)
-
-![Image](https://dattell.com/wp-content/uploads/2019/01/elasticsearch-cluster2-1024x770.png)
-
 ![Image](https://i.sstatic.net/5yyY2.png)
-
-![Image](https://www.elastic.co/search-labs/_next/image?q=75\&url=https%3A%2F%2Fcdn.sanity.io%2Fimages%2Fme0ej585%2Fsearch-labs-import-testing%2F6096e3171c4add49e36242bcf8e82c000b7bd5f9-2022x1188.png\&w=3840)
 
 Aprenda como você pode usar o **Elasticsearch** para resolver uma grande variedade de problemas em **System Design**.
 
@@ -295,11 +289,7 @@ POST /my_index/_pit?keep_alive=1m
 
 ## Arquitetura do Cluster
 
-![Image](https://www.instaclustr.com/wp-content/uploads/2021/10/image-3-1-1024x424.png)
-
 ![Image](https://miro.medium.com/v2/resize%3Afit%3A1400/1%2Ab0vgJt_UjmzRTzOfwAR7wQ.png)
-
-![Image](https://miro.medium.com/v2/resize%3Afit%3A1292/1%2ATjv2lmiq9eo40aXVNJCGBQ.jpeg)
 
 ### Tipos de Nós
 
