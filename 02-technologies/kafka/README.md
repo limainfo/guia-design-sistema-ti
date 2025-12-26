@@ -170,8 +170,13 @@ Uma mensagem (record) possui:
 
 ```mermaid
 flowchart LR
-    Producer -->|hash(key)| PartitionSelector
-    PartitionSelector --> Partition
+    Producer[Producer]
+    Selector[Partition Selector]
+    Partition[Partition]
+    Broker[Broker]
+
+    Producer -->|hash key| Selector
+    Selector --> Partition
     Partition --> Broker
 ```
 
