@@ -1,10 +1,6 @@
-A seguir está a **tradução completa e fiel para o português** do material sobre **Consistent Hashing**, mantendo o tom didático e o foco em *system design interviews*.
-
----
-
 # Consistent Hashing (Hashing Consistente)
 
-**Que problema o consistent hashing resolve, como ele funciona e como você pode usá-lo em entrevistas.**
+**Qual problema o consistent hashing resolve, como ele funciona e como você pode usá-lo em entrevistas.**
 
 ---
 
@@ -283,9 +279,3 @@ Em entrevistas de *system design*, lembre-se:
 * Basta reconhecer **quando ele está sendo usado**
 * E aprofundar apenas quando o cenário exigir
 
-Se quiser, posso:
-
-* Gerar **diagramas Mermaid** do hash ring
-* Criar um **resumo de entrevista (cheat sheet)**
-* Comparar **consistent hashing vs rendezvous hashing**
-* Ou adaptar esse conteúdo para **material de estudo em Markdown**
