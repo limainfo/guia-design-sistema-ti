@@ -82,11 +82,11 @@ O ZooKeeper expõe um **namespace hierárquico**, semelhante a um sistema de arq
 
 ```mermaid
 flowchart TB
-  root[/]
-  root --> app[/app]
-  app --> config[/config]
-  app --> leaders[/leaders]
-  app --> workers[/workers]
+  root[root]
+  root --> app[app]
+  app --> config[config]
+  app --> leaders[leaders]
+  app --> workers[workers]
 ```
 
 ### ZNodes
