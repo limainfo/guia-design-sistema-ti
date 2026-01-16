@@ -148,8 +148,8 @@ Se você inserir elementos demais para um m pequeno, o filtro “satura”, como
 ```mermaid
 flowchart LR
   Q[Consulta por chave] --> BF{Bloom diz: pode existir?}
-  BF -- "não" --> SKIP[Não consulta o backend\n(economia de I/O)]
-  BF -- "talvez" --> DB[Consulta backend real\n(DB/cache/disco)]
+  BF -- "não" --> SKIP["Não consulta o backend<br/>(economia de I/O)"]
+  BF -- "talvez" --> DB["Consulta backend real<br/>(DB/cache/disco)"]
 ```
 
 **Armadilhas:**
@@ -169,10 +169,10 @@ Em sistemas de crawling, você quer evitar recrawlear URLs já vistas.
 
 ```mermaid
 flowchart TB
-  URL[URL encontrada] --> BF{Já vimos? (Bloom)}
-  BF -- "não" --> ENQ[Enfileira para crawl]
-  BF -- "talvez" --> DROP[Provavelmente já vista\n(pode descartar)]
-  ENQ --> ADD[Insere no Bloom]
+  URL["URL encontrada"] --> BF{"Já vimos? (Bloom)"}
+  BF -- "não" --> ENQ["Enfileira para crawl"]
+  BF -- "talvez" --> DROP["Provavelmente já vista<br/>(pode descartar)"]
+  ENQ --> ADD["Insere no Bloom"]
 ```
 
 Trade-off: pode haver falsos positivos e você acabar ignorando uma URL nova (isso pode ser aceitável dependendo do objetivo do crawler).
@@ -203,15 +203,15 @@ Você não armazena o mapa `item -> count` completo. Em vez disso, você mantém
 
 ```mermaid
 flowchart TB
-  X[Item] --> H1[Hash 1 -> coluna c1]
-  X --> H2[Hash 2 -> coluna c2]
-  X --> H3[Hash 3 -> coluna c3]
+  X["Item (X)"] --> H1["Hash 1 → coluna c1"]
+  X --> H2["Hash 2 → coluna c2"]
+  X --> H3["Hash 3 → coluna c3"]
 
-  H1 --> R1[Incrementa contador (linha1, c1)]
-  H2 --> R2[Incrementa contador (linha2, c2)]
-  H3 --> R3[Incrementa contador (linha3, c3)]
+  H1 --> R1["Incrementa contador (linha 1, c1)"]
+  H2 --> R2["Incrementa contador (linha 2, c2)"]
+  H3 --> R3["Incrementa contador (linha 3, c3)"]
 
-  Q[Query: estimar count(X)] --> M[Retorna min\n(contador1, contador2, contador3)]
+  Q["Query: estimar count(X)"] --> M["Retorna min<br/>(contador1, contador2, contador3)"]
 ```
 
 Propriedade típica:
@@ -271,11 +271,11 @@ Em vez de armazenar todos os elementos (impossível em grande escala), ele usa h
 
 ```mermaid
 flowchart LR
-  E[Elemento] --> H[Hash 64-bit]
-  H --> B[Seleciona bucket\n(pelos primeiros bits)]
-  H --> Z[Conta zeros à esquerda\nno restante]
-  B --> R[Atualiza registro do bucket\ncom max(zeros)]
-  Q[Estimativa] --> M[Combina buckets\n-> cardinalidade aproximada]
+  E["Elemento"] --> H["Hash 64-bit"]
+  H --> B["Seleciona bucket<br/>(pelos primeiros bits)"]
+  H --> Z["Conta zeros à esquerda<br/>no restante"]
+  B --> R["Atualiza registro do bucket<br/>com max(zeros)"]
+  Q["Estimativa"] --> M["Combina buckets<br/>→ cardinalidade aproximada"]
 ```
 
 ---
