@@ -1,0 +1,332 @@
+# Procedimento Operacional
+
+## Compilação, assinatura e instalação do driver virtual `avshws` em ambiente Windows com EWDK/Visual Studio
+
+### 1. Identificação
+
+**Procedimento:** Compilação e instalação do driver virtual `avshws`
+**Projeto:** `VirtualCameraDriver`
+**Módulo:** `Driver\avshws`
+**Ambiente-alvo:** Windows x64
+**Ferramental principal:** Enterprise WDK + Visual Studio Build Tools + MSBuild + SignTool + Inf2Cat
+**Status atual:** Build e empacotamento concluídos com sucesso; pendência remanescente relacionada ao carregamento do driver no sistema operacional.
+
+---
+
+## 2. Objetivo
+
+Estabelecer um procedimento padronizado para:
+
+* compilar o driver `avshws` em arquitetura x64;
+* aplicar os ajustes necessários no projeto para contornar incompatibilidades de build;
+* gerar e assinar manualmente os artefatos do driver;
+* adicionar o pacote ao Driver Store do Windows;
+* registrar o estágio atual da instalação e a pendência ainda existente para carregamento definitivo do driver.
+
+---
+
+## 3. Escopo
+
+Este procedimento aplica-se à reprodução do processo técnico realizado sobre o projeto `VirtualCameraDriver`, especificamente no diretório:
+
+```text
+D:\Documentos\GoogleDrive\camera-fake\VirtualCameraDriver\Driver\avshws
+```
+
+---
+
+## 4. Pré-requisitos
+
+### 4.1. Ambiente
+
+* Windows 64 bits
+* Prompt do Visual Studio / EWDK
+* Enterprise WDK instalado
+* Windows Kits instalados com `signtool.exe` e `Inf2Cat.exe`
+
+### 4.2. Código-fonte
+
+Repositório clonado localmente com a estrutura do projeto `VirtualCameraDriver`.
+
+### 4.3. Certificado
+
+Certificado de teste disponível para assinatura manual, identificado pelo thumbprint:
+
+```text
+6D1416DE6C271502E48C6DFFBACB5669B0685716
+```
+
+---
+
+## 5. Fundamentação técnica resumida
+
+Durante a execução do processo, foram identificados os seguintes comportamentos:
+
+1. o projeto não podia ser compilado em `Win32`, exigindo build em `x64`;
+2. o projeto apresentava dependência residual de `stdafx.h`;
+3. o compilador mantinha `/WX`, transformando o warning `C4996` em erro;
+4. o target automático de assinatura falhava por não informar `/fd SHA256`;
+5. após a falha de assinatura, o build removia automaticamente os artefatos não assinados;
+6. a geração manual do `.cat` e sua assinatura resolveram a etapa de aceitação do pacote pelo Driver Store;
+7. o pacote foi aceito pelo `pnputil`, porém o carregamento final do driver ainda encontra restrição no sistema.  
+
+---
+
+## 6. Ajustes obrigatórios no projeto
+
+### 6.1. Compilar exclusivamente em x64
+
+O projeto deve ser compilado com:
+
+```bat
+msbuild avshws.vcxproj /t:Clean;Build /p:Configuration=Debug /p:Platform=x64
+```
+
+A tentativa com `Win32` não é válida para o cenário tratado.
+
+---
+
+### 6.2. Remoção de dependência de `stdafx.h`
+
+Foi necessário remover a linha abaixo dos arquivos-fonte que ainda a referenciavam:
+
+```cpp
+#include "stdafx.h"
+```
+
+#### Arquivos ajustados
+
+* `capture.cpp`
+* `device.cpp`
+* `filter.cpp`
+* `hwsim.cpp`
+* `image.cpp`
+* `purecall.c`
+
+Esse ajuste foi necessário porque o build já não operava adequadamente com a dependência de precompiled header, e a ausência do arquivo gerava falhas de compilação. 
+
+---
+
+### 6.3. Desabilitação específica do warning 4996
+
+O projeto continuava compilando com `/WX`, mesmo quando se tentava desabilitar o tratamento global de warnings como erro por linha de comando. Assim, a abordagem efetiva foi desabilitar especificamente o warning `4996`, relacionado ao uso de `ExAllocatePoolWithTag`. 
+
+#### Ajuste aplicado no `avshws.vcxproj`
+
+No bloco `ClCompile` da configuração `Debug|x64`, incluir:
+
+```xml
+<DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+```
+
+---
+
+### 6.4. Neutralização dos targets automáticos de assinatura e remoção de artefatos
+
+Foi identificado que, após o link do driver, o build chamava `DriverTestSign` e `TestSign`. Quando a assinatura automática falhava, o target `RemoveUnsignedOutput` removia o `.sys`, `.inf` e `.pdb` gerados. 
+
+#### Ajuste aplicado no final do arquivo `avshws.vcxproj`
+
+Antes de `</Project>`, adicionar:
+
+```xml
+<Target Name="DriverTestSign" />
+<Target Name="TestSign" />
+<Target Name="RemoveUnsignedOutput" />
+```
+
+Esse ajuste foi indispensável para preservar os artefatos gerados e permitir a assinatura manual posterior.
+
+---
+
+## 7. Compilação do driver
+
+### 7.1. Comando de build
+
+Executar no diretório do projeto:
+
+```bat
+msbuild avshws.vcxproj /t:Clean;Build /p:Configuration=Debug /p:Platform=x64
+```
+
+### 7.2. Resultado esperado
+
+Ao final, devem existir os artefatos abaixo em:
+
+```text
+x64\Debug\
+```
+
+Arquivos principais esperados:
+
+* `avshws.sys`
+* `avshws.inf`
+* `avshws.pdb`
+
+A geração do `.sys` foi confirmada no diretório de saída. 
+
+---
+
+## 8. Assinatura manual do arquivo `.sys`
+
+Como a assinatura automática do projeto não funcionou corretamente, a assinatura foi realizada manualmente.
+
+### 8.1. Comando
+
+```bat
+"E:\Program Files\Windows Kits\10\bin\10.0.28000.0\x86\signtool.exe" sign /ph /fd SHA256 /sha1 "6D1416DE6C271502E48C6DFFBACB5669B0685716" "x64\Debug\avshws.sys"
+```
+
+### 8.2. Resultado esperado
+
+Mensagem de sucesso informando assinatura concluída.
+
+---
+
+## 9. Geração do catálogo do pacote (`.cat`)
+
+A instalação do pacote via `INF` exige catálogo válido.
+
+### 9.1. Geração do catálogo
+
+```bat
+"E:\Program Files\Windows Kits\10\bin\10.0.28000.0\x86\Inf2Cat.exe" /driver:"D:\Documentos\GoogleDrive\camera-fake\VirtualCameraDriver\Driver\avshws\x64\Debug" /os:10_X64
+```
+
+### 9.2. Resultado esperado
+
+Geração do arquivo:
+
+```text
+x64\Debug\avshws.cat
+```
+
+A geração do catálogo foi concluída sem erros nem warnings.
+
+---
+
+## 10. Assinatura do catálogo
+
+### 10.1. Comando
+
+```bat
+"E:\Program Files\Windows Kits\10\bin\10.0.28000.0\x86\signtool.exe" sign /fd SHA256 /sha1 "6D1416DE6C271502E48C6DFFBACB5669B0685716" "x64\Debug\avshws.cat"
+```
+
+### 10.2. Resultado esperado
+
+Mensagem de sucesso informando assinatura concluída do catálogo.
+
+---
+
+## 11. Adição do pacote ao Driver Store
+
+### 11.1. Comando
+
+```bat
+pnputil /add-driver "x64\Debug\avshws.inf" /install
+```
+
+### 11.2. Resultado obtido
+
+O pacote foi adicionado com sucesso ao sistema, recebendo nome publicado (`oem141.inf`). Em uma das tentativas, foi informado que o pacote foi adicionado com sucesso, porém inicialmente instalado em `0 dispositivo(s)`, comportamento compatível com ausência de correspondência automática de dispositivo presente. Posteriormente, o pacote foi aceito pelo sistema.
+
+---
+
+## 12. Ajuste recomendado no INF
+
+Durante a validação do INF, foi emitido aviso recomendando a inclusão de `PnpLockdown=1` na seção `[Version]`. Esse item não bloqueou o processo, mas deve ser mantido como melhoria de conformidade. 
+
+### Ajuste recomendado
+
+Na seção `[Version]` do `avshws.inf`, incluir:
+
+```ini
+PnpLockdown=1
+```
+
+---
+
+## 13. Evidências de sucesso parcial
+
+Até o estágio atual, foram obtidas as seguintes evidências objetivas:
+
+* compilação concluída com geração de `avshws.sys`; 
+* assinatura manual do `.sys` concluída com sucesso;
+* geração do `avshws.cat` via `Inf2Cat` sem erros;
+* assinatura manual do `avshws.cat` concluída com sucesso;
+* pacote aceito pelo `pnputil` e adicionado ao Driver Store.
+
+---
+
+## 14. Pendência atual
+
+Apesar de o pacote já estar compilado, assinado e aceito pelo sistema, ainda existe pendência no momento do uso efetivo do dispositivo, registrada por comportamento compatível com bloqueio de carregamento do driver pelo Windows.
+
+O ponto remanescente está associado à etapa de confiança/carregamento do driver em modo kernel, possivelmente envolvendo:
+
+* modo de teste do Windows (`testsigning`);
+* política de Secure Boot;
+* aceitação do certificado de teste pelo sistema;
+* política de carregamento do driver.
+
+Assim, o processo ainda **não está 100% concluído**, porém a cadeia principal de build, empacotamento e instalação já foi estabilizada.
+
+---
+
+## 15. Sequência resumida de reprodução
+
+### 15.1. Ajustar o projeto
+
+1. remover `#include "stdafx.h"` dos arquivos afetados;
+2. desabilitar warning `4996` no `.vcxproj`;
+3. neutralizar os targets:
+
+   * `DriverTestSign`
+   * `TestSign`
+   * `RemoveUnsignedOutput`
+
+### 15.2. Compilar
+
+```bat
+msbuild avshws.vcxproj /t:Clean;Build /p:Configuration=Debug /p:Platform=x64
+```
+
+### 15.3. Assinar o `.sys`
+
+```bat
+"E:\Program Files\Windows Kits\10\bin\10.0.28000.0\x86\signtool.exe" sign /ph /fd SHA256 /sha1 "6D1416DE6C271502E48C6DFFBACB5669B0685716" "x64\Debug\avshws.sys"
+```
+
+### 15.4. Gerar o catálogo
+
+```bat
+"E:\Program Files\Windows Kits\10\bin\10.0.28000.0\x86\Inf2Cat.exe" /driver:"D:\Documentos\GoogleDrive\camera-fake\VirtualCameraDriver\Driver\avshws\x64\Debug" /os:10_X64
+```
+
+### 15.5. Assinar o catálogo
+
+```bat
+"E:\Program Files\Windows Kits\10\bin\10.0.28000.0\x86\signtool.exe" sign /fd SHA256 /sha1 "6D1416DE6C271502E48C6DFFBACB5669B0685716" "x64\Debug\avshws.cat"
+```
+
+### 15.6. Instalar o pacote
+
+```bat
+pnputil /add-driver "x64\Debug\avshws.inf" /install
+```
+
+---
+
+## 16. Conclusão
+
+O procedimento já se mostrou reproduzível até a fase de:
+
+* ajustes do projeto,
+* compilação,
+* geração do binário do driver,
+* assinatura manual,
+* geração e assinatura do catálogo,
+* inclusão do pacote no Driver Store.
+
+A pendência restante encontra-se concentrada no carregamento final do driver no Windows, não mais na etapa de build ou empacotamento. Portanto, este documento já permite repetir com segurança a parte principal do processo sem reexecutar novamente toda a fase de investigação inicial.
