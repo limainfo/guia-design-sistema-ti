@@ -3,7 +3,9 @@
 ## Compilação, assinatura e instalação do driver virtual `avshws` em ambiente Windows com EWDK/Visual Studio
 
 ### 1. Identificação
-
+Instalar https://learn.microsoft.com/en-us/legal/windows/hardware/enterprise-wdk-license-2022
+Abrir o arquivo .iso diretamente no Windows Explorer (montado como uma unidade E:, F: ou equivalente)
+Executar como administrador LaunchBuildEnv.cmd (vai abrir o terminal com tudo configurado)
 **Procedimento:** Compilação e instalação do driver virtual `avshws`
 **Projeto:** `VirtualCameraDriver`
 **Módulo:** `Driver\avshws`
