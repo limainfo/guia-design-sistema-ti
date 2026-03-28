@@ -76,13 +76,12 @@ Durante a validação, verificou-se que:
 
 Durante a execução do processo, foram identificados os seguintes comportamentos:
 
-1. o projeto não podia ser compilado em `Win32`, exigindo build em `x64`;
-2. o projeto apresentava dependência residual de `stdafx.h`;
-3. o compilador mantinha `/WX`, transformando o warning `C4996` em erro;
-4. o target automático de assinatura falhava por não informar `/fd SHA256`;
-5. após a falha de assinatura, o build removia automaticamente os artefatos não assinados;
-6. a geração manual do `.cat` e sua assinatura resolveram a etapa de aceitação do pacote pelo Driver Store;
-7. o pacote foi aceito pelo `pnputil`, porém o carregamento final do driver ainda encontra restrição no sistema.  
+1. o projeto não podia ser compilado em Win32, exigindo build em x64;
+2. o compilador mantinha /WX, transformando o warning C4996 em erro;
+3. o target automático de assinatura falhava por não informar /fd SHA256;
+4. após a falha de assinatura, o build removia automaticamente os artefatos não assinados;
+5. a geração manual do .cat e sua assinatura resolveram a etapa de aceitação do pacote pelo Driver Store;
+6. o carregamento do driver somente foi concluído com sucesso após desabilitar a Integridade da memória e reiniciar o Windows.
 
 ---
 
@@ -238,7 +237,7 @@ Durante a validação do INF, foi emitido aviso recomendando a inclusão de `Pnp
 
 ### Ajuste recomendado
 
-Na seção `[Version]` do `x64\Debug\avshws\avshws.inf`, incluir:
+Na seção `[Version]` do `x64\Debug\avshws\avshws.inf e avshws.inf`, incluir:
 
 ```ini
 PnpLockdown=1
@@ -297,26 +296,53 @@ msbuild avshws.vcxproj /t:Clean;Build /p:Configuration=Debug /p:Platform=x64
 ### 14.4. Gerar o catálogo
 
 ```bat
-"E:\Program Files\Windows Kits\10\bin\10.0.28000.0\x86\signtool.exe" sign /fd SHA256 /sha1 "6D1416DE6C271502E48C6DFFBACB5669B0685716" "x64\Debug\avshws\avshws.cat"
+"E:\Program Files\Windows Kits\10\bin\10.0.28000.0\x86\Inf2Cat.exe" /driver:"D:\Documentos\GoogleDrive\camera-fake\VirtualCameraDriver\Driver\avshws\x64\Debug" /os:10_X64
 ```
 
 ### 14.5. Assinar o catálogo
 
 ```bat
-"E:\Program Files\Windows Kits\10\bin\10.0.28000.0\x86\signtool.exe" sign /fd SHA256 /sha1 "6D1416DE6C271502E48C6DFFBACB5669B0685716" "x64\Debug\avshws.cat"
+"E:\Program Files\Windows Kits\10\bin\10.0.28000.0\x86\signtool.exe" sign /fd SHA256 /sha1 "6D1416DE6C271502E48C6DFFBACB5669B0685716" "x64\Debug\avshws\avshws.cat"
 ```
 
 ### 14.6. Instalar o pacote
 
 ```bat
-pnputil /add-driver "x64\Debug\avshws.inf" /install
+pnputil /add-driver "x64\Debug\avshws\avshws.inf" /install
 ```
 
 ### 14.7. Validar políticas de segurança do Windows
 
-* confirmar testsigning = Yes;
-* confirmar certificado de teste confiado;
-* validar o catálogo com signtool verify /v /pa.
+* Confirmar se o Windows está em modo de teste:
+```bat
+bcdedit /enum
+```
+Verificar se a entrada abaixo está presente no carregador atual do Windows:
+```bat
+testsigning             Yes
+```
+Caso não esteja habilitado, executar em prompt com privilégio administrativo:
+```bat
+bcdedit /set testsigning on
+```
+e reiniciar o sistema.
+* Confirmar a confiança do certificado de teste:
+```bat
+certutil -user -store my 6D1416DE6C271502E48C6DFFBACB5669B0685716
+certutil -user -store my 6D1416DE6C271502E48C6DFFBACB5669B0685716 WDKTestCert.cer
+certutil -addstore "Root" WDKTestCert.cer
+certutil -addstore "TrustedPublisher" WDKTestCert.cer
+certutil -user -addstore "Root" WDKTestCert.cer
+```
+* Validar o catálogo assinado para instalação PnP:
+```bat
+"E:\Program Files\Windows Kits\10\bin\10.0.28000.0\x86\signtool.exe" verify /v /pa "x64\Debug\avshws\avshws.cat"
+```
+* Confirmar pré-condições do sistema:
+** Secure Boot desativado;
+** testsigning habilitado;
+** certificado de teste confiado;
+** catálogo validado com sucesso por /pa.
 
 ### 14.8. Desabilitar Integridade da memória e reiniciar
 
