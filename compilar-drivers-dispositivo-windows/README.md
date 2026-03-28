@@ -60,6 +60,16 @@ Certificado de teste disponível para assinatura manual, identificado pelo thumb
 6D1416DE6C271502E48C6DFFBACB5669B0685716
 ```
 
+### 4.4. Configuração do Windows para carregamento do driver de teste
+Para permitir o carregamento do driver de teste no Windows, foi necessário manter o sistema com testsigning habilitado e, adicionalmente, desabilitar temporariamente o recurso Integridade da memória em Segurança do Windows > Segurança do dispositivo > Isolamento de núcleo.
+
+Durante a validação, verificou-se que:
+
+* testsigning já estava habilitado;
+* Secure Boot estava desativado;
+* o bloqueio remanescente era causado pela Integridade da memória (HVCI/VBS);
+* após desabilitar a Integridade da memória e reiniciar o sistema, o driver passou a carregar corretamente.
+
 ---
 
 ## 5. Fundamentação técnica resumida
@@ -90,28 +100,7 @@ A tentativa com `Win32` não é válida para o cenário tratado.
 
 ---
 
-### 6.2. Remoção de dependência de `stdafx.h`
-
-Foi necessário remover a linha abaixo dos arquivos-fonte que ainda a referenciavam:
-
-```cpp
-#include "stdafx.h"
-```
-
-#### Arquivos ajustados
-
-* `capture.cpp`
-* `device.cpp`
-* `filter.cpp`
-* `hwsim.cpp`
-* `image.cpp`
-* `purecall.c`
-
-Esse ajuste foi necessário porque o build já não operava adequadamente com a dependência de precompiled header, e a ausência do arquivo gerava falhas de compilação. 
-
----
-
-### 6.3. Desabilitação específica do warning 4996
+### 6.2. Desabilitação específica do warning 4996
 
 O projeto continuava compilando com `/WX`, mesmo quando se tentava desabilitar o tratamento global de warnings como erro por linha de comando. Assim, a abordagem efetiva foi desabilitar especificamente o warning `4996`, relacionado ao uso de `ExAllocatePoolWithTag`. 
 
@@ -125,7 +114,7 @@ No bloco `ClCompile` da configuração `Debug|x64`, incluir:
 
 ---
 
-### 6.4. Neutralização dos targets automáticos de assinatura e remoção de artefatos
+### 6.3. Neutralização dos targets automáticos de assinatura e remoção de artefatos
 
 Foi identificado que, após o link do driver, o build chamava `DriverTestSign` e `TestSign`. Quando a assinatura automática falhava, o target `RemoveUnsignedOutput` removia o `.sys`, `.inf` e `.pdb` gerados. 
 
@@ -155,6 +144,7 @@ msbuild avshws.vcxproj /t:Clean;Build /p:Configuration=Debug /p:Platform=x64
 
 ### 7.2. Resultado esperado
 
+A build gera os artefatos principais, mas pode terminar com falha no DrvCat.
 Ao final, devem existir os artefatos abaixo em:
 
 ```text
@@ -221,6 +211,25 @@ A geração do catálogo foi concluída sem erros nem warnings.
 
 Mensagem de sucesso informando assinatura concluída do catálogo.
 
+### 10.3. Validação do catálogo assinado
+A validação do catálogo deve ser realizada com a opção /pa, pois essa verificação confirmou corretamente a assinatura do pacote para fins de instalação PnP. A validação sem /pa pode acusar cadeia não confiável, mesmo quando o catálogo já está adequado ao processo de instalação test-signed.
+
+```bat
+"E:\Program Files\Windows Kits\10\bin\10.0.28000.0\x86\signtool.exe" verify /v /pa "x64\Debug\avshws\avshws.cat"
+```
+
+### 10.4. Exportação e confiança do certificado de teste
+Durante os testes, foi necessário garantir explicitamente a confiança do certificado utilizado na assinatura. O certificado WDKTestCert..., identificado pelo thumbprint 6D1416DE6C271502E48C6DFFBACB5669B0685716, foi localizado no repositório pessoal do usuário, exportado para arquivo .cer e confirmado nos repositórios de confiança pertinentes.
+
+```bat
+certutil -user -store my 6D1416DE6C271502E48C6DFFBACB5669B0685716
+certutil -user -store my 6D1416DE6C271502E48C6DFFBACB5669B0685716 WDKTestCert.cer
+certutil -addstore "Root" WDKTestCert.cer
+certutil -addstore "TrustedPublisher" WDKTestCert.cer
+certutil -user -addstore "Root" WDKTestCert.cer
+```
+
+
 ---
 
 ## 11. Adição do pacote ao Driver Store
@@ -262,25 +271,9 @@ Até o estágio atual, foram obtidas as seguintes evidências objetivas:
 * pacote aceito pelo `pnputil` e adicionado ao Driver Store.
 
 ---
+## 14. Sequência resumida de reprodução
 
-## 14. Pendência atual
-
-Apesar de o pacote já estar compilado, assinado e aceito pelo sistema, ainda existe pendência no momento do uso efetivo do dispositivo, registrada por comportamento compatível com bloqueio de carregamento do driver pelo Windows.
-
-O ponto remanescente está associado à etapa de confiança/carregamento do driver em modo kernel, possivelmente envolvendo:
-
-* modo de teste do Windows (`testsigning`);
-* política de Secure Boot;
-* aceitação do certificado de teste pelo sistema;
-* política de carregamento do driver.
-
-Assim, o processo ainda **não está 100% concluído**, porém a cadeia principal de build, empacotamento e instalação já foi estabilizada.
-
----
-
-## 15. Sequência resumida de reprodução
-
-### 15.1. Ajustar o projeto
+### 14.1. Ajustar o projeto
 
 1. remover `#include "stdafx.h"` dos arquivos afetados;
 2. desabilitar warning `4996` no `.vcxproj`;
@@ -290,47 +283,66 @@ Assim, o processo ainda **não está 100% concluído**, porém a cadeia principa
    * `TestSign`
    * `RemoveUnsignedOutput`
 
-### 15.2. Compilar
+### 14.2. Compilar
 
 ```bat
 msbuild avshws.vcxproj /t:Clean;Build /p:Configuration=Debug /p:Platform=x64
 ```
 
-### 15.3. Assinar o `.sys`
+### 14.3. Assinar o `.sys`
 
 ```bat
 "E:\Program Files\Windows Kits\10\bin\10.0.28000.0\x86\signtool.exe" sign /ph /fd SHA256 /sha1 "6D1416DE6C271502E48C6DFFBACB5669B0685716" "x64\Debug\avshws.sys"
 ```
 
-### 15.4. Gerar o catálogo
+### 14.4. Gerar o catálogo
 
 ```bat
 "E:\Program Files\Windows Kits\10\bin\10.0.28000.0\x86\Inf2Cat.exe" /driver:"D:\Documentos\GoogleDrive\camera-fake\VirtualCameraDriver\Driver\avshws\x64\Debug" /os:10_X64
 ```
 
-### 15.5. Assinar o catálogo
+### 14.5. Assinar o catálogo
 
 ```bat
 "E:\Program Files\Windows Kits\10\bin\10.0.28000.0\x86\signtool.exe" sign /fd SHA256 /sha1 "6D1416DE6C271502E48C6DFFBACB5669B0685716" "x64\Debug\avshws.cat"
 ```
 
-### 15.6. Instalar o pacote
+### 14.6. Instalar o pacote
 
 ```bat
 pnputil /add-driver "x64\Debug\avshws.inf" /install
 ```
 
+### 14.7. Validar políticas de segurança do Windows
+
+* confirmar testsigning = Yes;
+* confirmar certificado de teste confiado;
+* validar o catálogo com signtool verify /v /pa.
+
+### 14.8. Desabilitar Integridade da memória e reiniciar
+
+* acessar Segurança do Windows > Segurança do dispositivo > Isolamento de núcleo;
+* desabilitar Integridade da memória;
+* reiniciar o Windows antes de testar novamente o dispositivo.
+
+### 14.9. Instalar/testar o hardware
+
+* instalar o dispositivo;
+* validar se o driver é carregado sem Código 52.
+
 ---
 
-## 16. Conclusão
+## 15. Conclusão
 
-O procedimento já se mostrou reproduzível até a fase de:
+O procedimento foi validado de ponta a ponta, incluindo:
 
-* ajustes do projeto,
-* compilação,
-* geração do binário do driver,
-* assinatura manual,
-* geração e assinatura do catálogo,
-* inclusão do pacote no Driver Store.
+* compilação do driver em x64;
+* geração do binário .sys;
+* geração e assinatura do catálogo .cat;
+* validação do catálogo para instalação PnP;
+* configuração de confiança do certificado de teste;
+* instalação do pacote no Windows;
+* liberação do carregamento do driver após desabilitação da Integridade da memória e reinicialização do sistema.
 
-A pendência restante encontra-se concentrada no carregamento final do driver no Windows, não mais na etapa de build ou empacotamento. Portanto, este documento já permite repetir com segurança a parte principal do processo sem reexecutar novamente toda a fase de investigação inicial.
+Assim, o processo passou a ser reproduzível não apenas até a instalação do pacote, mas também até o carregamento efetivo do driver no ambiente testado.
+
