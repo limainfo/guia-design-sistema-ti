@@ -2,7 +2,7 @@
 
 ## Compilação, assinatura e instalação do driver virtual `avshws` em ambiente Windows com EWDK/Visual Studio
 * Clonar repositório [https://github.com/robot9706/VirtualCameraDriver.git](https://github.com/robot9706/VirtualCameraDriver.git)
-* Instalar https://learn.microsoft.com/en-us/legal/windows/hardware/enterprise-wdk-license-2022
+* Instalar https://learn.microsoft.com/en-us/legal/windows/hardware/enterprise-wdk-license-2022. Verificar build correta de acordo com o sistema operacional. No meu caso Windows 11, version 25H2 EWDK (released September, 2025) with Visual Studio Buildtools 17.14.0, pois no windows+r -> msinfo32 tenho Nome do Sistema Operacional	Microsoft Windows 11 Pro / Versão	10.0.26200 Compilação 26200
 * Abrir o arquivo .iso diretamente no Windows Explorer (montado como uma unidade E:, F: ou equivalente)
 * Executar como administrador LaunchBuildEnv.cmd (vai abrir o terminal com tudo configurado)
 ---
@@ -381,4 +381,57 @@ O procedimento foi validado de ponta a ponta, incluindo:
 * liberação do carregamento do driver após desabilitação da Integridade da memória e reinicialização do sistema.
 
 Assim, o processo passou a ser reproduzível não apenas até a instalação do pacote, mas também até o carregamento efetivo do driver no ambiente testado.
+
+---
+
+# Procedimento para o UserLand
+
+### Passo a passo correto
+
+1. Abra o **Prompt de Comando do Developer / Build Tools**.
+
+2. Vá para a pasta do projeto:
+Troque <PlatformToolset>v140</PlatformToolset>  por <PlatformToolset>v143</PlatformToolset> em D:\Documentos\GoogleDrive\camera-fake\VirtualCameraDriver\UserLand\DriverInterface\DriverInterface.vcxproj
+```bat
+cd /d D:\Documentos\GoogleDrive\camera-fake\VirtualCameraDriver\UserLand
+msbuild VirtualCameraDriver.sln /t:Clean;Build /p:Configuration=Debug /p:Platform=x64
+```
+
+```bat
+cd /d D:\Documentos\GoogleDrive\camera-fake\VirtualCameraDriver\UserLand
+msbuild VirtualCameraDriver.sln /t:Clean;Build /p:Configuration=Debug /p:Platform=x64
+```
+
+3. Compile com **AnyCPU**, não com `x64`:
+
+```bat
+msbuild UserDriverStaticImage.csproj /t:Clean;Build /p:Configuration=Debug /p:Platform=AnyCPU
+```
+
+4. Se quiser versão de release:
+
+```bat
+msbuild UserDriverStaticImage.csproj /t:Clean;Build /p:Configuration=Release /p:Platform=AnyCPU
+```
+
+### Destino esperado
+
+Para `Debug`, o executável deve sair em:
+
+```text
+bin\Debug\
+```
+
+Para `Release`:
+
+```text
+bin\Release\
+```
+
+Esses caminhos batem com o próprio `.csproj`. ([GitHub][1])
+
+### O que esperar
+
+Como o projeto referencia `DriverInterfaceWrapper`, o MSBuild deve compilar essa dependência no processo normal de build, desde que a estrutura do repositório esteja preservada. O código da aplicação usa `DriverInterface.Init()`, `DriverInterface.GetDevices()`, `DriverInterface.SelectDevice()` e `DriverInterface.SetData(...)`, então essa referência é necessária para o programa funcionar. ([GitHub][1])
+
 
