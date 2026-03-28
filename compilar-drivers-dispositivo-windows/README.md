@@ -2,7 +2,7 @@
 
 ## Compilação, assinatura e instalação do driver virtual `avshws` em ambiente Windows com EWDK/Visual Studio
 * Clonar repositório [https://github.com/robot9706/VirtualCameraDriver.git](https://github.com/robot9706/VirtualCameraDriver.git)
-* Instalar https://learn.microsoft.com/en-us/legal/windows/hardware/enterprise-wdk-license-2022. Verificar build correta de acordo com o sistema operacional. No meu caso Windows 11, version 25H2 EWDK (released September, 2025) with Visual Studio Buildtools 17.14.0, pois no windows+r -> msinfo32 tenho Nome do Sistema Operacional	Microsoft Windows 11 Pro / Versão	10.0.26200 Compilação 26200
+* Instalar https://learn.microsoft.com/en-us/legal/windows/hardware/enterprise-wdk-license-2022 (https://go.microsoft.com/fwlink/?linkid=2335681). Verificar build correta de acordo com o sistema operacional. No meu caso Windows 11, version 25H2 EWDK (released September, 2025) with Visual Studio Buildtools 17.14.0, pois no windows+r -> msinfo32 tenho Nome do Sistema Operacional	Microsoft Windows 11 Pro / Versão	10.0.26200 Compilação 26200
 * Abrir o arquivo .iso diretamente no Windows Explorer (montado como uma unidade E:, F: ou equivalente)
 * Executar como administrador LaunchBuildEnv.cmd (vai abrir o terminal com tudo configurado)
 ---
