@@ -129,6 +129,17 @@ Antes de `</Project>`, adicionar:
 
 Esse ajuste foi indispensável para preservar os artefatos gerados e permitir a assinatura manual posterior.
 
+## 6.4. Ajuste recomendado no INF
+
+Durante a validação do INF, foi emitido aviso recomendando a inclusão de `PnpLockdown=1` na seção `[Version]`. Esse item não bloqueou o processo, mas deve ser mantido como melhoria de conformidade. 
+
+### Ajuste recomendado
+
+Na seção `[Version]` do `x64\Debug\avshws\avshws.inf e avshws.inf`, incluir:
+
+```ini
+PnpLockdown=1
+```
 ---
 
 ## 7. Compilação do driver
