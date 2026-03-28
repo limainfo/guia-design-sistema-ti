@@ -232,21 +232,7 @@ certutil -user -addstore "Root" WDKTestCert.cer
 
 ---
 
-## 11. Adição do pacote ao Driver Store
-
-### 11.1. Comando
-
-```bat
-pnputil /add-driver "x64\Debug\avshws\avshws.inf" /install
-```
-
-### 11.2. Resultado obtido
-
-O pacote foi adicionado com sucesso ao sistema, recebendo nome publicado (`oem141.inf`). Em uma das tentativas, foi informado que o pacote foi adicionado com sucesso, porém inicialmente instalado em `0 dispositivo(s)`, comportamento compatível com ausência de correspondência automática de dispositivo presente. Posteriormente, o pacote foi aceito pelo sistema.
-
----
-
-## 12. Ajuste recomendado no INF
+## 11. Ajuste recomendado no INF
 
 Durante a validação do INF, foi emitido aviso recomendando a inclusão de `PnpLockdown=1` na seção `[Version]`. Esse item não bloqueou o processo, mas deve ser mantido como melhoria de conformidade. 
 
@@ -257,6 +243,20 @@ Na seção `[Version]` do `x64\Debug\avshws\avshws.inf`, incluir:
 ```ini
 PnpLockdown=1
 ```
+
+---
+
+## 12. Adição do pacote ao Driver Store
+
+### 12.1. Comando
+
+```bat
+pnputil /add-driver "x64\Debug\avshws\avshws.inf" /install
+```
+
+### 12.2. Resultado obtido
+
+O pacote foi adicionado com sucesso ao sistema, recebendo nome publicado (`oem141.inf`). Em uma das tentativas, foi informado que o pacote foi adicionado com sucesso, porém inicialmente instalado em `0 dispositivo(s)`, comportamento compatível com ausência de correspondência automática de dispositivo presente. Posteriormente, o pacote foi aceito pelo sistema.
 
 ---
 
