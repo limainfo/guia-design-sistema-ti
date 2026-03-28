@@ -386,6 +386,26 @@ Assim, o processo passou a ser reproduzível não apenas até a instalação do 
 
 # Procedimento para o UserLand
 
+Na página https://learn.microsoft.com/en-us/windows/apps/windows-sdk/downloads baixe a ISO https://go.microsoft.com/fwlink/?linkid=2348707
+
+Abra no windows explorer e instale
+```bat
+Windows SDK Desktop Headers x64-x86_en-us.msi
+Windows SDK Desktop Libs x64-x86_en-us.
+Garantem um
+
+Windows SDK OnecoreUap Headers x64-x86_en-us.msi
+Garante shared
+
+Universal CRT Headers Libraries and Sources-x86_en-us.msi
+garante ucrt
+
+Windows SDK DirectX x64 Remote-x64_en-us.msi
+
+Windows SDK Desktop Tools x64-x86_en-us.msi
+Windows SDK for Windows Store Apps DirectX x64 Remote-x64_en-us.msi
+```
+
 ### Passo a passo correto
 
 1. Abra o **Prompt de Comando do Developer / Build Tools**.
