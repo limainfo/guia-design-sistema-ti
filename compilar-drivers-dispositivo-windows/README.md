@@ -237,7 +237,7 @@ certutil -user -addstore "Root" WDKTestCert.cer
 ### 11.1. Comando
 
 ```bat
-pnputil /add-driver "x64\Debug\avshws.inf" /install
+pnputil /add-driver "x64\Debug\avshws\avshws.inf" /install
 ```
 
 ### 11.2. Resultado obtido
@@ -252,7 +252,7 @@ Durante a validação do INF, foi emitido aviso recomendando a inclusão de `Pnp
 
 ### Ajuste recomendado
 
-Na seção `[Version]` do `avshws.inf`, incluir:
+Na seção `[Version]` do `x64\Debug\avshws\avshws.inf`, incluir:
 
 ```ini
 PnpLockdown=1
