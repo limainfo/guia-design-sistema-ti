@@ -178,7 +178,7 @@ Como a assinatura automática do projeto não funcionou corretamente, a assinatu
 ### 8.1. Comando
 
 ```bat
-"E:\Program Files\Windows Kits\10\bin\10.0.28000.0\x86\signtool.exe" sign /ph /fd SHA256 /sha1 "6D1416DE6C271502E48C6DFFBACB5669B0685716" "x64\Debug\avshws.sys"
+"E:\Program Files\Windows Kits\10\bin\10.0.26100.0\x86\signtool.exe" sign /ph /fd SHA256 /sha1 "6D1416DE6C271502E48C6DFFBACB5669B0685716" "x64\Debug\avshws.sys"
 ```
 
 ### 8.2. Resultado esperado
@@ -194,7 +194,7 @@ A instalação do pacote via `INF` exige catálogo válido.
 ### 9.1. Geração do catálogo
 
 ```bat
-"E:\Program Files\Windows Kits\10\bin\10.0.28000.0\x86\Inf2Cat.exe" /driver:"D:\Documentos\GoogleDrive\camera-fake\VirtualCameraDriver\Driver\avshws\x64\Debug" /os:10_X64
+"E:\Program Files\Windows Kits\10\bin\10.0.26100.0\x86\Inf2Cat.exe" /driver:"D:\Documentos\GoogleDrive\camera-fake\VirtualCameraDriver\Driver\avshws\x64\Debug" /os:10_X64
 ```
 
 ### 9.2. Resultado esperado
@@ -214,7 +214,7 @@ A geração do catálogo foi concluída sem erros nem warnings.
 ### 10.1. Comando
 
 ```bat
-"E:\Program Files\Windows Kits\10\bin\10.0.28000.0\x86\signtool.exe" sign /fd SHA256 /sha1 "6D1416DE6C271502E48C6DFFBACB5669B0685716" "x64\Debug\avshws\avshws.cat"
+"E:\Program Files\Windows Kits\10\bin\10.0.26100.0\x86\signtool.exe" sign /fd SHA256 /sha1 "6D1416DE6C271502E48C6DFFBACB5669B0685716" "x64\Debug\avshws\avshws.cat"
 ```
 
 ### 10.2. Resultado esperado
@@ -225,7 +225,7 @@ Mensagem de sucesso informando assinatura concluída do catálogo.
 A validação do catálogo deve ser realizada com a opção /pa, pois essa verificação confirmou corretamente a assinatura do pacote para fins de instalação PnP. A validação sem /pa pode acusar cadeia não confiável, mesmo quando o catálogo já está adequado ao processo de instalação test-signed.
 
 ```bat
-"E:\Program Files\Windows Kits\10\bin\10.0.28000.0\x86\signtool.exe" verify /v /pa "x64\Debug\avshws\avshws.cat"
+"E:\Program Files\Windows Kits\10\bin\10.0.26100.0\x86\signtool.exe" verify /v /pa "x64\Debug\avshws\avshws.cat"
 ```
 
 ### 10.4. Exportação e confiança do certificado de teste
@@ -301,19 +301,19 @@ msbuild avshws.vcxproj /t:Clean;Build /p:Configuration=Debug /p:Platform=x64
 ### 14.3. Assinar o `.sys`
 
 ```bat
-"E:\Program Files\Windows Kits\10\bin\10.0.28000.0\x86\signtool.exe" sign /ph /fd SHA256 /sha1 "6D1416DE6C271502E48C6DFFBACB5669B0685716" "x64\Debug\avshws.sys"
+"E:\Program Files\Windows Kits\10\bin\10.0.26100.0\x86\signtool.exe" sign /ph /fd SHA256 /sha1 "6D1416DE6C271502E48C6DFFBACB5669B0685716" "x64\Debug\avshws.sys"
 ```
 
 ### 14.4. Gerar o catálogo
 
 ```bat
-"E:\Program Files\Windows Kits\10\bin\10.0.28000.0\x86\Inf2Cat.exe" /driver:"D:\Documentos\GoogleDrive\camera-fake\VirtualCameraDriver\Driver\avshws\x64\Debug" /os:10_X64
+"E:\Program Files\Windows Kits\10\bin\10.0.26100.0\x86\Inf2Cat.exe" /driver:"D:\Documentos\GoogleDrive\camera-fake\VirtualCameraDriver\Driver\avshws\x64\Debug" /os:10_X64
 ```
 
 ### 14.5. Assinar o catálogo
 
 ```bat
-"E:\Program Files\Windows Kits\10\bin\10.0.28000.0\x86\signtool.exe" sign /fd SHA256 /sha1 "6D1416DE6C271502E48C6DFFBACB5669B0685716" "x64\Debug\avshws\avshws.cat"
+"E:\Program Files\Windows Kits\10\bin\10.0.26100.0\x86\signtool.exe" sign /fd SHA256 /sha1 "6D1416DE6C271502E48C6DFFBACB5669B0685716" "x64\Debug\avshws\avshws.cat"
 ```
 
 ### 14.6. Instalar o pacote
@@ -347,7 +347,7 @@ certutil -user -addstore "Root" WDKTestCert.cer
 ```
 * Validar o catálogo assinado para instalação PnP:
 ```bat
-"E:\Program Files\Windows Kits\10\bin\10.0.28000.0\x86\signtool.exe" verify /v /pa "x64\Debug\avshws\avshws.cat"
+"E:\Program Files\Windows Kits\10\bin\10.0.26100.0\x86\signtool.exe" verify /v /pa "x64\Debug\avshws\avshws.cat"
 ```
 * Confirmar pré-condições do sistema:
 ** Secure Boot desativado;
