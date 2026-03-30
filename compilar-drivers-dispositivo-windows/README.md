@@ -403,48 +403,20 @@ set WINSDKVER=10.0.26100.0
 
 set PATH=E:\Program Files\Windows Kits\10\bin\10.0.26100.0\x64;E:\Program Files\Windows Kits\10\bin\10.0.26100.0\x86;%PATH%
 
+cd /d D:\Documentos\GoogleDrive\camera-fake\VirtualCameraDriver\UserLand\DriverInterface
+
 msbuild DriverInterface.vcxproj /t:Clean;Build /p:Configuration=Debug /p:Platform=x64 /p:WindowsTargetPlatformVersion=%WINSDKVER% /p:WindowsSdkDir="%WINSDK%" /p:IncludePath="%WINSDK%\Include\%WINSDKVER%\ucrt;%WINSDK%\Include\%WINSDKVER%\um;%WINSDK%\Include\%WINSDKVER%\shared;$(IncludePath)" /p:LibraryPath="E:\Program Files\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\lib\x64;%WINSDK%\Lib\%WINSDKVER%\ucrt\x64;%WINSDK%\Lib\%WINSDKVER%\um\x64;$(LibraryPath)"
 
 
 Próximo passo prático
-
-Agora você precisa colocar a DLL nativa ao lado do executável do UserDriverStaticImage.
-copy /Y "D:\Documentos\GoogleDrive\camera-fake\VirtualCameraDriver\UserLand\DriverInterface\x64\Debug\DriverInterface.dll" "D:\Documentos\GoogleDrive\camera-fake\VirtualCameraDriver\UserLand\UserDriverStaticImage\bin\Debug\"
-
-
-D:\Documentos\GoogleDrive\camera-fake\VirtualCameraDriver\UserLand\DriverInterface>cd /d D:\Documentos\GoogleDrive\camera-fake\VirtualCameraDriver\UserLand\UserDriverStaticImage\bin\Debug
-
-D:\Documentos\GoogleDrive\camera-fake\VirtualCameraDriver\UserLand\UserDriverStaticImage\bin\Debug>UserDriverStaticImage.exe
-
-
 cd /d D:\Documentos\GoogleDrive\camera-fake\VirtualCameraDriver\UserLand\UserDriverStaticImage
 msbuild UserDriverStaticImage.csproj /t:Clean;Build /p:Configuration=Debug /p:Platform=AnyCPU /p:Prefer32Bit=false
 
-cd /d D:\Documentos\GoogleDrive\camera-fake\VirtualCameraDriver\UserLand\DriverInterface
 
-msbuild DriverInterface.vcxproj /t:Clean;Build /p:Configuration=Release /p:Platform=x64 /p:WindowsTargetPlatformVersion=%WINSDKVER% /p:WindowsSdkDir="%WINSDK%" /p:IncludePath="%WINSDK%\Include\%WINSDKVER%\ucrt;%WINSDK%\Include\%WINSDKVER%\um;%WINSDK%\Include\%WINSDKVER%\shared;$(IncludePath)" /p:LibraryPath="E:\Program Files\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\lib\x64;%WINSDK%\Lib\%WINSDKVER%\ucrt\x64;%WINSDK%\Lib\%WINSDKVER%\um\x64;$(LibraryPath)"
+Agora você precisa colocar a DLL nativa ao lado do executável do UserDriverStaticImage.
+copy /Y "D:\Documentos\GoogleDrive\camera-fake\VirtualCameraDriver\UserLand\DriverInterface\x64\Debug\DriverInterface.dll" "D:\Documentos\GoogleDrive\camera-fake\VirtualCameraDriver\UserLand\UserDriverStaticImage\bin\Release\"
 
-D:\Documentos\GoogleDrive\camera-fake\VirtualCameraDriver\UserLand\UserDriverStaticImage\bin\Release>copy /Y "D:\Documentos\GoogleDrive\camera-fake\VirtualCameraDriver\UserLand\DriverInterface\x64\Release\DriverInterface.dll" "D:\Documentos\GoogleDrive\camera-fake\VirtualCameraDriver\UserLand\UserDriverStaticImage\bin\Release\"
-        1 arquivo(s) copiado(s).
-
-D:\Documentos\GoogleDrive\camera-fake\VirtualCameraDriver\UserLand\UserDriverStaticImage\bin\Release>dir
- O volume na unidade D é DEVELOPER
- O Número de Série do Volume é B6B5-2B96
-
- Pasta de D:\Documentos\GoogleDrive\camera-fake\VirtualCameraDriver\UserLand\UserDriverStaticImage\bin\Release
-
-28/03/2026  21:41    <DIR>          .
-28/03/2026  21:41    <DIR>          ..
-28/03/2026  21:38            18.944 DriverInterface.dll
-28/03/2026  21:38             5.632 DriverInterfaceWrapper.dll
-28/03/2026  21:38            28.160 DriverInterfaceWrapper.pdb
-28/03/2026  21:38            12.800 UserDriverStaticImage.exe
-28/03/2026  12:13               187 UserDriverStaticImage.exe.config
-28/03/2026  21:38            36.352 UserDriverStaticImage.pdb
-               6 arquivo(s)        102.075 bytes
-               2 pasta(s)   705.716.015.104 bytes disponíveis
-
-D:\Documentos\GoogleDrive\camera-fake\VirtualCameraDriver\UserLand\UserDriverStaticImage\bin\Release>UserDriverStaticImage.exe
+D:\Documentos\GoogleDrive\camera-fake\VirtualCameraDriver\UserLand\UserDriverStaticImage\bin\Debug>UserDriverStaticImage.exe
 
 
 Windows SDK Desktop Headers x64-x86_en-us.msi
