@@ -1,700 +1,569 @@
-# Capítulo 02 — Ferramentas para Modelagem de Sistema de Software
-
-> Documento de estudo em português, organizado para consulta no GitHub.
->
-> Base do capítulo: material “Ferramentas para modelagem de Sistema de Software”, páginas 22 a 39 da apostila enviada.
-
----
+# Capítulo 03 — Ferramentas CASE para Gerenciamento de Projeto de Desenvolvimento de Software
 
 ## 1. Objetivos do capítulo
 
-Ao final deste capítulo, o estudante deve ser capaz de:
+Ao final deste capítulo, espera-se que o estudante seja capaz de:
 
-- identificar diferentes tipos de ferramentas utilizadas para modelagem de software;
-- compreender o conceito de modelagem de software e sua aplicação por meio de ferramentas específicas;
-- entender a importância da modelagem antes da implementação;
-- reconhecer o funcionamento básico de ferramentas CASE e IDEs com suporte à modelagem, como Astah, Microsoft Visio, NetBeans e Eclipse.
+* Identificar diferentes tipos de ferramentas CASE existentes no mercado.
+* Entender o conceito de gerenciamento de projetos de desenvolvimento de software.
+* Aplicar ferramentas específicas ao gerenciamento de projetos de software.
+* Compreender o funcionamento de ferramentas como:
+
+  * GitHub;
+  * GitHub Desktop;
+  * Microsoft Visual Studio Team System / Azure DevOps;
+  * Redmine / EasyRedmine.
 
 ---
 
-## 2. Visão geral
+## 2. Conceito de gerenciamento de projetos de software
 
-O desenvolvimento de um sistema de software passa por várias etapas. O capítulo apresenta uma sequência composta por:
+A gestão de projetos de software envolve práticas, métodos e ferramentas que ajudam a organizar e controlar o desenvolvimento de sistemas.
 
-1. levantamento e análise de requisitos;
-2. modelagem;
-3. implementação;
-4. testes;
-5. implantação;
-6. manutenção.
+Ela apoia principalmente:
 
-A etapa de **modelagem** costuma ser negligenciada por exigir tempo, abstração e domínio conceitual. Porém, ela é fundamental para reduzir ambiguidades, antecipar erros, padronizar a comunicação entre profissionais e orientar a implementação do sistema.
+* Organização das tarefas;
+* Definição da sequência de execução;
+* Identificação de dependências entre atividades;
+* Alocação de recursos;
+* Controle de tempo;
+* Rastreamento da execução;
+* Garantia de que o projeto siga o plano definido.
+
+Em projetos de software, o gerenciamento é especialmente importante porque o desenvolvimento normalmente envolve equipes, mudanças de requisitos, prazos, custos e necessidade de qualidade.
+
+```mermaid
+flowchart TD
+    A[Gerenciamento de Projetos de Software] --> B[Organização das tarefas]
+    A --> C[Sequência de execução]
+    A --> D[Controle de dependências]
+    A --> E[Alocação de recursos]
+    A --> F[Controle de prazo]
+    A --> G[Monitoramento da execução]
+    A --> H[Entrega conforme requisitos]
+
+    H --> I[Satisfação do cliente]
+```
+
+---
+
+## 3. Pilares da gestão de projetos de software
+
+Segundo o material, a gestão de projetos de software se apoia em três pilares principais:
+
+1. Ter foco nos requisitos e na satisfação do cliente.
+2. Fazer com que a equipe trabalhe de forma produtiva e colaborativa.
+3. Administrar recursos de tempo, humanos e financeiros.
+
+```mermaid
+mindmap
+  root((Gestão de Projetos de Software))
+    Foco no cliente
+      Requisitos
+      Satisfação
+      Entrega de valor
+    Equipe produtiva
+      Colaboração
+      Comunicação
+      Responsabilidades
+    Administração de recursos
+      Tempo
+      Pessoas
+      Custos
+```
+
+---
+
+## 4. Restrições comuns em projetos de software
+
+O processo de desenvolvimento de software está sujeito a restrições de:
+
+* Qualidade;
+* Tempo;
+* Orçamento.
+
+Além disso, o desenvolvimento de software é dinâmico e sujeito a mudanças. Por isso, uma boa prática é adotar um processo organizado, com arquitetura adequada e ferramentas que permitam controlar alterações, tarefas e entregas.
 
 ```mermaid
 flowchart LR
-    A["Levantamento e análise<br/>de requisitos"]
-    B["Modelagem"]
-    C["Implementação"]
-    D["Testes"]
-    E["Implantação"]
-    F["Manutenção"]
+    A[Projeto de Software] --> B[Qualidade]
+    A --> C[Tempo]
+    A --> D[Orçamento]
 
-    A --> B --> C --> D --> E --> F
-```
+    B --> E[Produto confiável]
+    C --> F[Entrega no prazo]
+    D --> G[Uso adequado de recursos]
 
-A ideia central é simples: **quanto melhor o modelo, menor a chance de o sistema ser implementado com falhas de entendimento**.
-
----
-
-## 3. Processo de modelagem
-
-Modelar software significa estruturar uma representação abstrata do sistema. Essa representação não mostra apenas código, mas também:
-
-- contexto externo;
-- interação entre partes do sistema;
-- comportamento esperado;
-- organização interna de dados e componentes.
-
-A modelagem permite que analistas, desenvolvedores, arquitetos, usuários e demais interessados compartilhem uma visão comum do sistema antes que a implementação seja iniciada.
-
----
-
-## 4. Perspectivas para criação de modelos de software
-
-O capítulo apresenta quatro perspectivas principais de modelagem:
-
-| Perspectiva | Foco | Pergunta que ajuda a entender |
-|---|---|---|
-| Externa | Contexto e ambiente de implantação | Onde o sistema será usado e com quais agentes externos interage? |
-| Integração | Comunicação entre componentes do sistema e ambiente | Quais partes conversam entre si? |
-| Comportamental | Comportamento dinâmico e reação a eventos | Como o sistema se comporta quando algo acontece? |
-| Estrutural | Organização dos dados e componentes | Como os elementos internos são organizados? |
-
-### Mermaid equivalente — Perspectivas de modelagem
-
-```mermaid
-flowchart TB
-    M["Modelagem de Software"]
-
-    M --> PE["Perspectiva Externa<br/>Contexto e ambiente de implantação"]
-    M --> PI["Perspectiva de Integração<br/>Interação entre componentes<br/>e ambiente"]
-    M --> PC["Perspectiva Comportamental<br/>Comportamento dinâmico<br/>e reação a eventos"]
-    M --> PS["Perspectiva Estrutural<br/>Organização e estrutura<br/>dos dados processados"]
-
-    PE --> OBJ["Objetivo comum:<br/>compreender, comunicar e orientar<br/>a construção do software"]
-    PI --> OBJ
-    PC --> OBJ
-    PS --> OBJ
+    E --> H[Sucesso do projeto]
+    F --> H
+    G --> H
 ```
 
 ---
 
-## 5. UML — Unified Modeling Language
+## 5. Ferramentas CASE
 
-A **UML**, ou **Linguagem de Modelagem Unificada**, é uma linguagem visual padronizada para representar sistemas de software.
+Ferramentas CASE são recursos utilizados para auxiliar profissionais de Tecnologia da Informação na administração, implementação, controle e acompanhamento de projetos de software.
 
-Ela é importante porque oferece uma notação comum para representar:
+Elas podem apoiar atividades como:
 
-- estrutura do sistema;
-- comportamento do sistema;
-- interação entre objetos, usuários e componentes;
-- organização de classes, pacotes e implantação;
-- fluxo de ações e mensagens.
-
-A UML ajuda a reduzir a distância entre análise, projeto e implementação. Em vez de cada equipe criar sua própria forma de desenho, utiliza-se uma notação padronizada e reconhecida internacionalmente.
-
-> Nota de atualização: o capítulo menciona UML 2.5. Atualmente, a especificação formal publicada pela OMG é a UML 2.5.1.
-
----
-
-## 6. Classificação dos diagramas UML
-
-O capítulo divide os diagramas UML em três categorias:
-
-1. **Diagramas estruturais**;
-2. **Diagramas comportamentais**;
-3. **Diagramas de interação**.
-
-### 6.1 Diagramas estruturais
-
-Representam a estrutura estática do sistema.
-
-Exemplos:
-
-- diagrama de classes;
-- diagrama de objetos;
-- diagrama de componentes;
-- diagrama de pacotes;
-- diagrama de instalação ou implantação;
-- diagrama de perfil;
-- diagrama de estrutura composta.
-
-### 6.2 Diagramas comportamentais
-
-Representam o comportamento do sistema.
-
-Exemplos:
-
-- diagrama de casos de uso;
-- diagrama de atividades;
-- diagrama de máquina de estados.
-
-### 6.3 Diagramas de interação
-
-Representam interações entre objetos, componentes ou partes do sistema ao longo do tempo.
-
-Exemplos:
-
-- diagrama de sequência;
-- diagrama de comunicação;
-- diagrama de interação;
-- diagrama de colaboração;
-- diagrama de tempo.
-
-### Mermaid equivalente — Classificação dos diagramas UML
+* Gerenciamento de projetos;
+* Controle de versões;
+* Controle de funcionalidades;
+* Administração de testes;
+* Monitoramento de tarefas;
+* Comunicação entre membros da equipe;
+* Garantia de qualidade durante o processo.
 
 ```mermaid
-flowchart TB
-    UML["Diagramas UML"]
+flowchart TD
+    A[Ferramentas CASE] --> B[Gerenciamento de Projetos]
+    A --> C[Controle de Versão]
+    A --> D[Administração de Testes]
+    A --> E[Monitoramento de Tarefas]
+    A --> F[Comunicação da Equipe]
+    A --> G[Qualidade do Software]
 
-    UML --> EST["Diagramas Estruturais"]
-    UML --> COM["Diagramas Comportamentais"]
-    UML --> INT["Diagramas de Interação"]
-
-    EST --> DC["Diagrama de Classes"]
-    EST --> DO["Diagrama de Objetos"]
-    EST --> DCOMP["Diagrama de Componentes"]
-    EST --> DP["Diagrama de Pacotes"]
-    EST --> DI["Diagrama de Instalação<br/>ou Implantação"]
-    EST --> DPER["Diagrama de Perfil"]
-    EST --> DEC["Diagrama de Estrutura Composta"]
-
-    COM --> DUC["Diagrama de Casos de Uso"]
-    COM --> DA["Diagrama de Atividades"]
-    COM --> DME["Diagrama de Máquina de Estados"]
-
-    INT --> DS["Diagrama de Sequência"]
-    INT --> DCOMU["Diagrama de Comunicação"]
-    INT --> DINTER["Diagrama de Interação"]
-    INT --> DCOL["Diagrama de Colaboração"]
-    INT --> DT["Diagrama de Tempo"]
+    B --> H[Projeto mais organizado]
+    C --> H
+    D --> H
+    E --> H
+    F --> H
+    G --> H
 ```
 
 ---
 
-## 7. Diagrama de classes
+# 6. GitHub
 
-O **diagrama de classes** é um dos diagramas mais importantes da UML. Ele representa a estrutura do sistema a partir de classes, atributos, métodos e relacionamentos.
+## 6.1 Conceito
 
-Uma classe geralmente contém:
+O GitHub é uma plataforma de hospedagem de código-fonte com controle de versão baseado no Git.
 
-- **nome da classe**;
-- **atributos**, que representam dados ou propriedades;
-- **métodos**, que representam comportamentos ou operações.
+Ele permite que projetos sejam armazenados em repositórios, mantendo o histórico completo das alterações realizadas nos arquivos.
 
-Exemplo conceitual:
+O GitHub é amplamente utilizado em projetos de programação porque permite:
+
+* Armazenar código-fonte;
+* Controlar versões;
+* Registrar histórico de alterações;
+* Trabalhar de forma colaborativa;
+* Compartilhar projetos;
+* Facilitar contribuições de outros usuários;
+* Organizar a evolução do software.
 
 ```mermaid
-classDiagram
-    class Usuario {
-        +Long id
-        +String nome
-        +String email
-        +autenticar()
-        +alterarSenha()
-    }
+flowchart TD
+    A[Desenvolvedor] --> B[Repositório local]
+    B --> C[Git]
+    C --> D[Histórico de versões]
+    C --> E[Branches]
+    C --> F[Commits]
 
-    class Pedido {
-        +Long id
-        +Date dataCriacao
-        +BigDecimal valorTotal
-        +calcularTotal()
-        +cancelar()
-    }
-
-    Usuario "1" --> "0..*" Pedido : realiza
+    B --> G[GitHub]
+    G --> H[Repositório remoto]
+    H --> I[Colaboração]
+    H --> J[Compartilhamento]
+    H --> K[Controle centralizado do projeto]
 ```
 
 ---
 
-## 8. Conceitos importantes no diagrama de classes
+## 6.2 Repositório local e remoto
 
-O capítulo destaca alguns relacionamentos fundamentais:
+No fluxo com GitHub, o desenvolvedor pode trabalhar localmente em sua máquina e depois enviar as alterações para o repositório remoto.
 
-| Conceito | Significado |
-|---|---|
-| Herança | Uma classe filha herda características de uma classe ancestral. |
-| Associação | Uma classe se relaciona com outra. |
-| Agregação | Um todo é formado por partes, mas as partes podem existir independentemente. |
-| Composição | Um todo é formado por partes dependentes; se o todo deixa de existir, as partes também deixam. |
-| Multiplicidade | Indica a quantidade de objetos envolvidos em uma relação. |
-
-### 8.1 Herança
-
-A herança permite representar especialização. Uma classe mais específica reutiliza características de uma classe mais geral.
-
-```mermaid
-classDiagram
-    class Pessoa {
-        +String nome
-        +String cpf
-    }
-
-    class Aluno {
-        +String matricula
-    }
-
-    class Professor {
-        +String registro
-    }
-
-    Pessoa <|-- Aluno
-    Pessoa <|-- Professor
-```
-
-### 8.2 Associação e multiplicidade
-
-A associação mostra que duas classes possuem algum vínculo. A multiplicidade indica quantas instâncias participam da relação.
-
-```mermaid
-classDiagram
-    class Cliente {
-        +Long id
-        +String nome
-    }
-
-    class Pedido {
-        +Long id
-        +Date data
-    }
-
-    Cliente "1" --> "0..*" Pedido : faz
-```
-
-Interpretação:
-
-- um cliente pode fazer zero ou muitos pedidos;
-- cada pedido pertence a um cliente.
-
-### 8.3 Agregação
-
-Na agregação, as partes podem existir mesmo sem o todo.
-
-```mermaid
-classDiagram
-    class Time {
-        +String nome
-    }
-
-    class Jogador {
-        +String nome
-    }
-
-    Time "1" o-- "0..*" Jogador : possui
-```
-
-Interpretação:
-
-- um time possui jogadores;
-- se o time deixar de existir, o jogador ainda pode existir em outro contexto.
-
-### 8.4 Composição
-
-Na composição, a parte depende fortemente do todo.
-
-```mermaid
-classDiagram
-    class Pedido {
-        +Long id
-        +Date data
-    }
-
-    class ItemPedido {
-        +String produto
-        +Integer quantidade
-        +BigDecimal valor
-    }
-
-    Pedido "1" *-- "1..*" ItemPedido : composto por
-```
-
-Interpretação:
-
-- um pedido é composto por itens;
-- um item de pedido não faz sentido isoladamente fora do pedido ao qual pertence.
-
-### Mermaid equivalente — Conceitos do diagrama de classes
-
-```mermaid
-classDiagram
-    direction LR
-
-    class Classe {
-        +atributo: dominio
-        +metodo()
-    }
-
-    class SubclasseA {
-        +atributo: dominio
-    }
-
-    class SubclasseB {
-        +atributo: dominio
-    }
-
-    class ClasseAgregada {
-        +atributo: dominio
-    }
-
-    class ClasseComponente {
-        +atributo: dominio
-    }
-
-    class Objeto {
-        <<object>>
-    }
-
-    Classe <|-- SubclasseA : herança
-    Classe <|-- SubclasseB : herança
-    Classe "1" --> "0..*" ClasseAgregada : associação
-    ClasseAgregada o-- ClasseComponente : agregação
-    ClasseAgregada *-- ClasseComponente : composição
-    Objeto ..> Classe : instanciação
-```
-
-> Observação: em um modelo real, não se usa agregação e composição simultaneamente para o mesmo par de classes. O diagrama acima é apenas didático para demonstrar as notações.
-
----
-
-## 9. Diagrama de casos de uso
-
-O **diagrama de casos de uso** representa o sistema do ponto de vista do usuário.
-
-Ele mostra:
-
-- quem interage com o sistema;
-- quais funcionalidades são oferecidas;
-- quais ações pertencem a cada ator;
-- relações como herança, inclusão e extensão.
-
-Os principais elementos são:
-
-| Elemento | Descrição |
-|---|---|
-| Ator | Pessoa, sistema externo ou equipamento que interage com o sistema. |
-| Caso de uso | Funcionalidade ou serviço oferecido pelo sistema. |
-| Associação | Ligação entre ator e caso de uso. |
-| Include | Um caso de uso sempre executa outro caso de uso. |
-| Extend | Um caso de uso pode complementar outro em uma situação específica. |
-| Herança | Um ator ou caso de uso herda comportamento de outro. |
-
-### Mermaid equivalente — Herança em casos de uso
-
-```mermaid
-flowchart LR
-    A1["Ator 1"]
-    A2["Ator 2"]
-
-    UC1(("Consultar pagamentos"))
-    UC2(("Cadastrar usuários"))
-    UC3(("Cadastrar pagamentos"))
-
-    A2 -- "herda permissões" --> A1
-
-    A1 --- UC1
-    A1 --- UC2
-    A2 --- UC3
-```
-
-Interpretação do exemplo:
-
-- o **Ator 1** pode consultar pagamentos e cadastrar usuários;
-- o **Ator 2** pode cadastrar pagamentos;
-- o **Ator 2** herda as ações do **Ator 1**, podendo também realizar as funcionalidades associadas a ele.
-
-### Mermaid equivalente — Include e Extend
-
-```mermaid
-flowchart LR
-    V(("Registrar venda"))
-    C(("Emitir comprovante"))
-    B(("Bloquear acesso"))
-
-    L(("Realizar login"))
-    T(("Validar tentativa"))
-    E(("Exibir mensagem de erro"))
-
-    V -. "<<include>>" .-> C
-
-    L -. "<<include>>" .-> T
-    B -. "<<extend>><br/>após três tentativas inválidas" .-> L
-    E -. "<<extend>><br/>quando credenciais forem inválidas" .-> L
-```
-
-Interpretação:
-
-- `include` representa uma ação obrigatória e sempre executada;
-- `extend` representa uma ação opcional ou condicional, executada apenas em determinado cenário.
-
----
-
-## 10. Diagrama de sequência
-
-O **diagrama de sequência** representa o comportamento dinâmico do sistema ao longo do tempo.
-
-Ele mostra:
-
-- objetos ou atores envolvidos;
-- mensagens trocadas entre eles;
-- ordem temporal das ações;
-- chamadas e retornos;
-- colaboração entre componentes.
-
-O capítulo destaca que o diagrama de sequência depende diretamente dos casos de uso e das classes já identificadas. Portanto, ele não deve ser criado isoladamente: é necessário saber quais atores, objetos e funcionalidades participam do cenário.
-
-### Exemplo didático — Login de usuário
+Esse processo favorece o trabalho distribuído, pois os membros da equipe não precisam estar fisicamente no mesmo local.
 
 ```mermaid
 sequenceDiagram
-    actor Usuario
-    participant TelaLogin as Tela de Login
-    participant AuthService as Serviço de Autenticação
-    participant UsuarioRepo as Repositório de Usuários
+    participant Dev as Desenvolvedor
+    participant Local as Repositório Local
+    participant Remoto as GitHub / Repositório Remoto
+    participant Equipe as Outros Desenvolvedores
 
-    Usuario->>TelaLogin: informa email e senha
-    TelaLogin->>AuthService: autenticar(email, senha)
-    AuthService->>UsuarioRepo: buscarPorEmail(email)
-    UsuarioRepo-->>AuthService: dados do usuário
-    AuthService->>AuthService: validar senha
-    AuthService-->>TelaLogin: autenticação aprovada
-    TelaLogin-->>Usuario: exibe área restrita
+    Dev->>Local: Altera arquivos
+    Dev->>Local: Realiza commit
+    Local->>Remoto: Envia alterações com git push
+    Equipe->>Remoto: Consulta alterações
+    Equipe->>Local: Atualiza projeto com git pull
 ```
 
-### Exemplo com retorno de erro
+---
+
+## 6.3 Principais comandos Git apresentados no capítulo
+
+| Comando                                | Finalidade                                                              |
+| -------------------------------------- | ----------------------------------------------------------------------- |
+| `git branch nome_branch`               | Cria uma nova branch.                                                   |
+| `git merge nome_branch`                | Reagrupa ou integra uma branch ao fluxo principal.                      |
+| `git pull`                             | Atualiza a aplicação local com alterações vindas do repositório remoto. |
+| `git push`                             | Envia versões atualizadas para o servidor web/remoto.                   |
+| `git clone local_origem local_destino` | Cria uma cópia local de um repositório.                                 |
+
+---
+
+## 6.4 Fluxo básico de versionamento com GitHub
 
 ```mermaid
-sequenceDiagram
-    actor Usuario
-    participant TelaLogin as Tela de Login
-    participant AuthService as Serviço de Autenticação
+flowchart TD
+    A[Clonar repositório] --> B[Alterar arquivos]
+    B --> C[Criar commit]
+    C --> D[Enviar alterações para o GitHub]
+    D --> E[Outros membros atualizam seus ambientes]
+    E --> F[Projeto evolui de forma colaborativa]
 
-    Usuario->>TelaLogin: informa credenciais inválidas
-    TelaLogin->>AuthService: autenticar(email, senha)
-    AuthService-->>TelaLogin: erro de autenticação
-    TelaLogin-->>Usuario: exibe mensagem de erro
+    B --> G[Criar branch]
+    G --> H[Desenvolver funcionalidade isolada]
+    H --> I[Realizar merge]
+    I --> D
 ```
 
 ---
 
-## 11. Ferramentas CASE e ferramentas de modelagem
+## 6.5 GitHub Desktop
 
-Ferramentas CASE apoiam atividades de engenharia de software, incluindo análise, modelagem, documentação, geração de código e integração com ambientes de desenvolvimento.
+O GitHub Desktop é uma ferramenta visual que facilita o uso do Git e do GitHub.
 
-O capítulo apresenta quatro ferramentas:
+Ele permite:
 
-1. Astah;
-2. Microsoft Visio;
-3. NetBeans;
-4. Eclipse.
-
----
-
-## 12. Astah
-
-O **Astah** é apresentado como uma ferramenta CASE voltada à modelagem de sistemas de software, com suporte à criação de diagramas UML.
-
-Pontos destacados pelo capítulo:
-
-- anteriormente era chamado de JUDE;
-- o nome estava relacionado a “Java and UML Developers Environment”;
-- possui integração com Java;
-- permite criar diagramas UML;
-- foi apresentado como uma ferramenta com versão completa paga e versão gratuita/community.
-
-> Nota de atualização: a edição **Astah Community** foi oficialmente descontinuada em 2018 e não está mais disponível para download. Atualmente, o Astah oferece produtos comerciais, versões de avaliação e opções específicas como licença estudantil.
-
-### Quando faz sentido usar
-
-- Para criar diagramas UML com foco acadêmico ou profissional;
-- Para modelar classes, casos de uso, sequência e outros diagramas;
-- Para equipes que desejam uma ferramenta dedicada à modelagem.
-
----
-
-## 13. Microsoft Visio
-
-O **Microsoft Visio** é uma ferramenta de diagramação para Windows, utilizada para criar diferentes tipos de diagramas, como:
-
-- fluxogramas;
-- organogramas;
-- diagramas UML;
-- modelagem de dados;
-- layouts de rede;
-- plantas baixas;
-- mapas e cartazes.
-
-Pontos destacados pelo capítulo:
-
-- possui interface semelhante ao Microsoft Office;
-- oferece templates e modelos prontos;
-- facilita a criação de diagramas visuais;
-- possui licença paga.
-
-> Nota de atualização: atualmente, o Visio também possui recursos no contexto do Microsoft 365 e versões/plano para uso web e desktop, dependendo da licença contratada.
-
-### Quando faz sentido usar
-
-- Para diagramas corporativos e documentação visual;
-- Para fluxogramas de processos;
-- Para diagramas rápidos, com boa apresentação visual;
-- Para organizações que já utilizam o ecossistema Microsoft.
-
----
-
-## 14. NetBeans
-
-O **NetBeans** é apresentado como uma IDE open source e multiplataforma, usada para desenvolvimento em várias linguagens.
-
-O capítulo cita suporte a linguagens como:
-
-- Java;
-- JavaScript;
-- HTML;
-- PHP;
-- C/C++;
-- Groovy;
-- Ruby.
-
-Também destaca que o NetBeans permite criar e manipular diagramas UML por meio de plugins ou recursos específicos.
-
-> Nota de atualização: o NetBeans atualmente é mantido como **Apache NetBeans**, sob a Apache Software Foundation.
-
-### Quando faz sentido usar
-
-- Para desenvolvimento Java;
-- Para projetos web;
-- Para ensino de programação;
-- Para desenvolvimento multiplataforma;
-- Para quem busca uma IDE gratuita e extensível.
-
----
-
-## 15. Eclipse
-
-O **Eclipse** é apresentado como uma IDE open source, multiplataforma e extensível por plugins.
-
-Pontos destacados pelo capítulo:
-
-- permite desenvolvimento em diferentes linguagens;
-- possui suporte a modelagem UML por meio de plugins;
-- trabalha com múltiplas janelas e alta customização;
-- permite produtividade no desenvolvimento com recursos visuais e integração com código.
-
-### Quando faz sentido usar
-
-- Para desenvolvimento Java corporativo;
-- Para projetos que dependem de plugins específicos;
-- Para equipes que precisam customizar a IDE;
-- Para ambientes acadêmicos e profissionais que buscam ferramenta gratuita e extensível.
-
----
-
-## 16. Comparativo didático das ferramentas
-
-| Ferramenta | Tipo | Principal uso | Pontos fortes | Atenção |
-|---|---|---|---|---|
-| Astah | CASE/modelagem | UML e modelagem de software | Foco em modelagem | Community Edition foi descontinuada |
-| Microsoft Visio | Diagramação | Diagramas gerais e UML | Visual profissional, templates, integração Microsoft | Licença paga |
-| NetBeans | IDE | Desenvolvimento e modelagem via recursos/plugins | Open source, multiplataforma, forte em Java | UML pode depender de plugins |
-| Eclipse | IDE | Desenvolvimento extensível e modelagem via plugins | Ecossistema robusto, plugins, Java corporativo | Configuração pode ser mais complexa |
-
----
-
-## 17. Mapa mental do capítulo
+* Visualizar repositórios locais;
+* Identificar arquivos modificados;
+* Ver o histórico de alterações;
+* Clonar repositórios do GitHub;
+* Enviar alterações para o repositório remoto;
+* Sincronizar o projeto local com o servidor.
 
 ```mermaid
-flowchart TB
-    CAP["Capítulo 02<br/>Ferramentas para Modelagem"]
+flowchart LR
+    A[GitHub Desktop] --> B[Visualizar repositórios]
+    A --> C[Ver arquivos modificados]
+    A --> D[Consultar histórico]
+    A --> E[Clonar repositórios]
+    A --> F[Enviar alterações]
+    A --> G[Atualizar projeto local]
 
-    CAP --> PROC["Processo de desenvolvimento"]
-    PROC --> REQ["Requisitos"]
-    PROC --> MOD["Modelagem"]
-    PROC --> IMP["Implementação"]
-    PROC --> TEST["Testes"]
-    PROC --> DEP["Implantação"]
-    PROC --> MAN["Manutenção"]
-
-    CAP --> UML["UML"]
-    UML --> EST["Diagramas estruturais"]
-    UML --> COM["Diagramas comportamentais"]
-    UML --> INT["Diagramas de interação"]
-
-    EST --> CLASSE["Classes"]
-    COM --> CASO["Casos de uso"]
-    INT --> SEQ["Sequência"]
-
-    CAP --> FERR["Ferramentas"]
-    FERR --> AST["Astah"]
-    FERR --> VIS["Microsoft Visio"]
-    FERR --> NET["NetBeans"]
-    FERR --> ECL["Eclipse"]
+    B --> H[Controle visual do projeto]
+    C --> H
+    D --> H
+    E --> H
+    F --> H
+    G --> H
 ```
 
 ---
 
-## 18. Pontos-chave para revisão
+# 7. Microsoft Visual Studio Team System / Azure DevOps
 
-- Modelagem é uma etapa essencial do processo de desenvolvimento de software.
-- A UML fornece uma linguagem visual padronizada para representar sistemas.
-- Diagramas estruturais mostram a estrutura estática do sistema.
-- Diagramas comportamentais mostram funcionalidades e comportamentos.
-- Diagramas de interação mostram comunicação entre objetos ou componentes.
-- Diagrama de classes representa classes, atributos, métodos e relacionamentos.
-- Diagrama de casos de uso mostra o sistema sob a perspectiva do usuário.
-- Diagrama de sequência mostra a ordem temporal das mensagens.
-- Ferramentas CASE e IDEs ajudam a criar, manter e documentar modelos.
-- Ferramentas de modelagem não substituem o entendimento do problema; elas apenas apoiam a representação do sistema.
+## 7.1 Conceito
 
----
+O material apresenta o Visual Studio Team System, também associado ao Azure DevOps, como uma ferramenta CASE robusta para gerenciamento do ciclo de vida de aplicações e projetos de software.
 
-## 19. Perguntas para fixação
+Ela permite administrar várias etapas do desenvolvimento, como:
 
-1. Por que a etapa de modelagem costuma ser negligenciada em projetos de software?
-2. Qual é a principal vantagem de usar UML em vez de diagramas informais?
-3. Qual é a diferença entre diagrama estrutural e diagrama comportamental?
-4. Em um diagrama de classes, qual é a diferença entre associação, agregação e composição?
-5. O que representa a multiplicidade em um relacionamento entre classes?
-6. Qual é a finalidade de um diagrama de casos de uso?
-7. Qual é a diferença entre `include` e `extend` em casos de uso?
-8. Por que o diagrama de sequência depende dos casos de uso e das classes?
-9. Em que situação o Microsoft Visio pode ser mais adequado do que uma IDE?
-10. Em que situação uma ferramenta como Eclipse ou NetBeans pode ser mais adequada do que uma ferramenta apenas de diagramação?
+* Controle de versão;
+* Gerenciamento de requisitos;
+* Relatórios;
+* Testes;
+* Tarefas;
+* Pipelines;
+* Estruturas de dados;
+* Integração com ambientes de desenvolvimento.
 
----
+```mermaid
+flowchart TD
+    A[Azure DevOps / VSTS] --> B[Repos]
+    A --> C[Boards]
+    A --> D[Test Plans]
+    A --> E[Pipelines]
+    A --> F[Relatórios]
+    A --> G[Gerenciamento de requisitos]
 
-## 20. Glossário rápido
-
-| Termo | Definição |
-|---|---|
-| UML | Linguagem de Modelagem Unificada usada para representar sistemas por meio de diagramas. |
-| CASE | Ferramenta de apoio à engenharia de software. |
-| IDE | Ambiente integrado de desenvolvimento. |
-| Classe | Estrutura que representa um conceito do sistema, com atributos e métodos. |
-| Atributo | Dado ou propriedade de uma classe. |
-| Método | Comportamento ou operação de uma classe. |
-| Herança | Relação em que uma classe especializada herda características de uma classe geral. |
-| Associação | Relação entre classes. |
-| Agregação | Relação todo-parte fraca. |
-| Composição | Relação todo-parte forte. |
-| Multiplicidade | Quantidade de instâncias envolvidas em uma associação. |
-| Ator | Usuário, sistema externo ou equipamento que interage com o sistema. |
-| Caso de uso | Funcionalidade oferecida pelo sistema. |
-| Diagrama de sequência | Diagrama que mostra mensagens entre participantes ao longo do tempo. |
+    B --> H[Controle de versão]
+    C --> I[Gestão de tarefas]
+    D --> J[Controle de testes]
+    E --> K[Automação de entrega]
+```
 
 ---
 
-## 21. Síntese final
+## 7.2 DevOps
 
-Este capítulo reforça que a modelagem é um instrumento de comunicação e planejamento. Antes de escrever código, a equipe precisa entender o problema, estruturar os elementos do sistema e visualizar como eles se relacionam.
+DevOps é apresentado como um conjunto de práticas que combina desenvolvimento de software com operações de tecnologia da informação.
 
-A UML fornece uma linguagem padronizada para essa representação, enquanto ferramentas como Astah, Visio, NetBeans e Eclipse apoiam a criação, documentação e manutenção dos modelos. Na prática, a escolha da ferramenta depende do objetivo: modelagem dedicada, documentação visual, desenvolvimento integrado ou extensibilidade por plugins.
+O objetivo é melhorar a construção, automação, monitoramento e entrega do software.
+
+```mermaid
+flowchart LR
+    A[Desenvolvimento - Dev] --> C[DevOps]
+    B[Operações - Ops] --> C
+
+    C --> D[Automação]
+    C --> E[Monitoramento]
+    C --> F[Testes]
+    C --> G[Entrega contínua]
+    C --> H[Qualidade]
+```
+
+---
+
+## 7.3 Azure Boards
+
+O Azure Boards é usado para gerenciar tarefas, requisitos, histórias de usuário, bugs e atividades do projeto.
+
+Ele oferece suporte a métodos como Scrum e Kanban.
+
+```mermaid
+flowchart TD
+    A[Azure Boards] --> B[Backlog]
+    B --> C[Histórias de usuário]
+    B --> D[Tarefas]
+    B --> E[Bugs]
+
+    C --> F[Quadro Kanban / Scrum]
+    D --> F
+    E --> F
+
+    F --> G[Acompanhamento do progresso]
+    G --> H[Comunicação da equipe]
+```
+
+---
+
+## 7.4 Azure Repos
+
+O Azure Repos oferece controle de versão para projetos de software.
+
+Ele permite:
+
+* Registrar alterações no código-fonte;
+* Manter histórico;
+* Gerar relatórios de alterações;
+* Recuperar versões anteriores;
+* Trabalhar de forma colaborativa.
+
+```mermaid
+flowchart TD
+    A[Azure Repos] --> B[Código-fonte]
+    B --> C[Commits]
+    C --> D[Histórico de alterações]
+    D --> E[Relatórios]
+    D --> F[Recuperação de versões anteriores]
+```
+
+---
+
+## 7.5 Azure Test Plans
+
+O Azure Test Plans é apresentado como um conjunto de componentes para realização e controle de testes.
+
+Ele permite executar testes em ambiente próprio, registrar resultados e gerar relatórios para apoiar a qualidade do software.
+
+```mermaid
+flowchart TD
+    A[Azure Test Plans] --> B[Planejamento de testes]
+    B --> C[Execução dos testes]
+    C --> D[Registro dos resultados]
+    D --> E[Relatórios]
+    E --> F[Melhoria da qualidade]
+```
+
+---
+
+## 7.6 Azure Pipelines
+
+O Azure Pipelines permite automatizar o processo de construção, teste e entrega de software.
+
+O material relaciona essa estrutura aos conceitos de integração contínua e entrega contínua.
+
+```mermaid
+flowchart TD
+    A[Desenvolvedor envia código] --> B[Pipeline iniciado]
+    B --> C[Build]
+    C --> D[Testes automatizados]
+    D --> E{Testes aprovados?}
+    E -- Sim --> F[Publicação / Deploy]
+    E -- Não --> G[Correção do código]
+    G --> A
+```
+
+---
+
+## 7.7 Pipeline de dados
+
+O capítulo também apresenta o conceito de pipeline de dados como um fluxo em que dados são coletados, processados, preparados e analisados.
+
+As etapas citadas são:
+
+1. Data engineering;
+2. Data preparation;
+3. Analytics.
+
+```mermaid
+flowchart LR
+    A[Entradas de dados] --> B[Data Engineering]
+    B --> C[Coleta dos dados]
+    C --> D[Remoção de inconsistências]
+    D --> E[Data Lake]
+
+    E --> F[Data Preparation]
+    F --> G[Refinamento dos dados]
+    G --> H[Enriquecimento dos dados]
+
+    H --> I[Analytics]
+    I --> J[Análise dos dados tratados]
+```
+
+---
+
+# 8. Redmine / EasyRedmine
+
+## 8.1 Conceito
+
+O Redmine, apresentado no material também por meio do EasyRedmine, é uma ferramenta CASE voltada ao gerenciamento de projetos e serviços.
+
+Ele auxilia no acompanhamento de atividades, correção de bugs, cronogramas, tarefas e múltiplos projetos.
+
+```mermaid
+flowchart TD
+    A[Redmine / EasyRedmine] --> B[Gerenciamento de projetos]
+    A --> C[Correção de bugs]
+    A --> D[Cronograma]
+    A --> E[Gráfico de Gantt]
+    A --> F[Tarefas]
+    A --> G[Múltiplos projetos]
+    A --> H[Integração com GitHub]
+```
+
+---
+
+## 8.2 Características técnicas
+
+O material informa que o Redmine é desenvolvido com Ruby on Rails.
+
+Essa estrutura facilita a criação de aplicações web orientadas a banco de dados e permite integração com outras ferramentas, como o GitHub.
+
+```mermaid
+flowchart LR
+    A[Redmine] --> B[Ruby on Rails]
+    B --> C[Aplicação Web]
+    C --> D[Banco de dados]
+    A --> E[Plugins]
+    A --> F[Integração com GitHub]
+```
+
+---
+
+## 8.3 Gestão de tarefas no Redmine
+
+O Redmine permite visualizar dados importantes sobre cada tarefa do projeto, como:
+
+* Responsáveis;
+* Progresso de execução;
+* Tempo gasto;
+* Tempo faturável;
+* Status;
+* Estrutura customizada.
+
+```mermaid
+flowchart TD
+    A[Tarefa no Redmine] --> B[Responsável]
+    A --> C[Status]
+    A --> D[Progresso]
+    A --> E[Tempo gasto]
+    A --> F[Tempo faturável]
+    A --> G[Categoria]
+    A --> H[Prioridade]
+
+    B --> I[Controle do projeto]
+    C --> I
+    D --> I
+    E --> I
+    F --> I
+    G --> I
+    H --> I
+```
+
+---
+
+## 8.4 Cronograma e calendário
+
+O Redmine também permite organizar o cronograma do projeto, definindo:
+
+* Datas de início;
+* Datas de fim;
+* Classificação de tarefas;
+* Horários de execução;
+* Lembretes;
+* Visualização em calendário.
+
+```mermaid
+flowchart TD
+    A[Cronograma do Projeto] --> B[Datas de início]
+    A --> C[Datas de término]
+    A --> D[Calendário]
+    A --> E[Lembretes]
+    A --> F[Classificação das tarefas]
+    A --> G[Horários de execução]
+
+    B --> H[Planejamento]
+    C --> H
+    D --> H
+    E --> H
+    F --> H
+    G --> H
+```
+
+---
+
+# 9. Comparativo entre as ferramentas
+
+| Ferramenta            | Foco principal                                      | Recursos destacados no capítulo                                 |
+| --------------------- | --------------------------------------------------- | --------------------------------------------------------------- |
+| GitHub                | Hospedagem de código e controle de versão           | Repositórios, branches, commits, clone, pull, push, colaboração |
+| GitHub Desktop        | Interface visual para GitHub/Git                    | Visualização de alterações, histórico, clone, sincronização     |
+| Azure DevOps / VSTS   | Gerenciamento completo do ciclo de vida do software | Boards, Repos, Test Plans, Pipelines, relatórios, requisitos    |
+| Redmine / EasyRedmine | Gerenciamento de projetos e tarefas                 | Cronograma, Gantt, tarefas, bugs, plugins, múltiplos projetos   |
+
+---
+
+# 10. Visão integrada das ferramentas no processo de desenvolvimento
+
+```mermaid
+flowchart TD
+    A[Projeto de Software] --> B[Planejamento]
+    B --> C[Gerenciamento de tarefas]
+    C --> D[Desenvolvimento]
+    D --> E[Controle de versão]
+    E --> F[Testes]
+    F --> G[Pipeline / Entrega]
+    G --> H[Monitoramento do projeto]
+    H --> I[Produto entregue]
+
+    C --> J[Azure Boards]
+    C --> K[Redmine]
+
+    E --> L[GitHub]
+    E --> M[Azure Repos]
+
+    F --> N[Azure Test Plans]
+
+    G --> O[Azure Pipelines]
+```
+
+---
+
+# 11. Síntese do capítulo
+
+O desenvolvimento de software deve ser tratado como um projeto, pois envolve várias atividades, pessoas, recursos, prazos e requisitos.
+
+As ferramentas CASE ajudam a controlar esse processo, oferecendo suporte ao planejamento, versionamento, acompanhamento de tarefas, comunicação, testes e entrega.
+
+Neste capítulo, foram apresentadas ferramentas importantes para esse cenário:
+
+* GitHub, para hospedagem de código e controle de versão;
+* GitHub Desktop, para facilitar visualmente o uso do GitHub;
+* Azure DevOps / VSTS, para gerenciamento completo do ciclo de vida do software;
+* Redmine / EasyRedmine, para gerenciamento de projetos, tarefas, cronogramas e bugs.
+
+Essas ferramentas contribuem para que o projeto seja conduzido com mais organização, colaboração e controle, aumentando a chance de entrega dentro dos requisitos, prazos e objetivos definidos.
