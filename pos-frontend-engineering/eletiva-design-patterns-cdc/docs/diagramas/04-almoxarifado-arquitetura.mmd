@@ -1,0 +1,17 @@
+flowchart TD
+    Controller[Controller / API]
+    Service[EstoqueService]
+    Domain[Domain: Material]
+    Factory[MaterialFactory]
+    Repository[MaterialRepository]
+    Adapter[EstoqueGateway Adapter]
+    External[Sistema Externo]
+    DB[(Banco / Memória)]
+
+    Controller --> Service
+    Service --> Domain
+    Service --> Factory
+    Service --> Repository
+    Repository --> DB
+    Service --> Adapter
+    Adapter --> External

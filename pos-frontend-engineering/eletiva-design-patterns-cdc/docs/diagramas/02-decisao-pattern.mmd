@@ -1,0 +1,12 @@
+flowchart TD
+    A[Identificar a dor] --> B{Criação?}
+    B -->|Sim| C[Factory / Builder / Singleton / Prototype]
+    B -->|Não| D{Estrutura?}
+    D -->|Sim| E[Adapter / Facade / Composite / Decorator]
+    D -->|Não| F{Comportamento?}
+    F -->|Sim| G[Strategy / Observer / Command / State / CoR]
+    F -->|Não| H[Não forçar pattern]
+    C --> I[Validar simplicidade]
+    E --> I
+    G --> I
+    H --> I

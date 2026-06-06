@@ -1,0 +1,8 @@
+flowchart LR
+    Contrato[Contrato] --> Mocks[Mocks/Stubs]
+    Contrato --> Testes[Testes de contrato]
+    Contrato --> Frontend[Frontend]
+    Contrato --> Backend[Backend]
+    Contrato --> Docs[Documentação viva]
+    Backend --> Validacao[Validação contra contrato]
+    Testes --> Validacao
