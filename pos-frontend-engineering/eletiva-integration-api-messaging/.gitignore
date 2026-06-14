@@ -1,0 +1,14 @@
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Editores
+.vscode/
+.idea/
+
+# Build de documentação
+site/
+
+# Temporários
+*.tmp
+*.bak

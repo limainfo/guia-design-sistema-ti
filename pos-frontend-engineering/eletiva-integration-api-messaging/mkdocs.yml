@@ -1,0 +1,17 @@
+site_name: Eletiva - Integration, APIs & Messaging
+site_description: Material de estudo sobre integração de sistemas, APIs e mensageria
+site_author: Material de estudo em português
+repo_name: eletiva-integration-api-messaging
+nav:
+  - Início: README.md
+  - 01 - Introdução: docs/01-introducao-integracao-sistemas.md
+  - 02 - Estilos de Integração: docs/02-estilos-arquitetura-integracao.md
+  - 03 - Segurança, Cloud e Testes: docs/03-seguranca-cloud-testes.md
+  - 04 - Revisão para Prova: docs/04-revisao-prova.md
+  - 05 - Glossário: docs/05-glossario.md
+  - 99 - Fontes e Atualizações: docs/99-fontes-e-atualizacoes.md
+markdown_extensions:
+  - tables
+  - fenced_code
+  - toc:
+      permalink: true
