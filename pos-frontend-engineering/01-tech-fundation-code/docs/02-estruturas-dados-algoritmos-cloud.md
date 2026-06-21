@@ -103,11 +103,18 @@ Características:
 
 ```mermaid
 flowchart LR
-    Lista[Lista alunos] --> I0[Índice 0\nAna]
-    Lista --> I1[Índice 1\nBruno]
-    Lista --> I2[Índice 2\nCarlos]
-    I2 --> Alteracao[Alteração\nalunos[2] = Clara]
-    Alteracao --> Novo[Índice 2\nClara]
+    subgraph Estado Inicial
+        Lista[Lista: Alunos] --> I0[Índice 0: Ana]
+        Lista --> I1[Índice 1: Bruno]
+        Lista --> I2[Índice 2: Carlos]
+    end
+
+    I2 --> Alteracao["Alteração:<br>alunos[2] = 'Clara'"]
+    Alteracao --> Novo[Índice 2: Clara]
+
+    style Alteracao fill:#f9f,stroke:#333,stroke-width:2px
+    style Novo fill:#bbf,stroke:#333,stroke-width:2px
+
 ```
 
 ---
@@ -163,9 +170,10 @@ Uso comum:
 
 ```mermaid
 flowchart LR
-    Usuario[Usuário] --> Nome["nome" -> "Camila"]
-    Usuario --> Idade["idade" -> 28]
-    Usuario --> Email["email" -> "camila@email.com"]
+    Usuario[Usuário] --> Nome["nome -> 'Camila'"]
+    Usuario --> Idade["idade -> 28"]
+    Usuario --> Email["email -> 'camila@email.com'"]
+
 ```
 
 ---
