@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: agente-node
+  namespace: estudo-containers
+spec:
+  selector:
+    matchLabels:
+      app: agente-node
+  template:
+    metadata:
+      labels:
+        app: agente-node
+    spec:
+      containers:
+        - name: agente
+          image: busybox:1.36
+          command: ["sh", "-c", "while true; do echo $(hostname); sleep 60; done"]
+          resources:
+            requests:
+              cpu: 5m
+              memory: 8Mi
+            limits:
+              cpu: 50m
+              memory: 16Mi

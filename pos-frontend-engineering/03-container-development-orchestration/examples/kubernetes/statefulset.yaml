@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: exemplo-stateful
+  namespace: estudo-containers
+spec:
+  serviceName: exemplo-stateful
+  replicas: 2
+  selector:
+    matchLabels:
+      app: exemplo-stateful
+  template:
+    metadata:
+      labels:
+        app: exemplo-stateful
+    spec:
+      containers:
+        - name: app
+          image: busybox:1.36
+          command: ["sh", "-c", "while true; do hostname; sleep 30; done"]
+          volumeMounts:
+            - name: dados
+              mountPath: /dados
+  volumeClaimTemplates:
+    - metadata:
+        name: dados
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 256Mi
