@@ -103,11 +103,11 @@ pois este diretório já contém os arquivos iniciais.
 Na raiz do laboratório:
 
 ```bash
-git init
-git branch -M main
+git init --initial-branch=main --object-format=sha1
+git remote add origin git@gitlab.com:limainfo-group/kubernetes-lab.git
 git add .
 git commit -m "feat: adiciona laboratório Kubernetes CI/CD"
-git remote add origin <URL_DO_PROJETO_GITLAB>
+git push --set-upstream origin main
 ```
 
 Ainda não faça o primeiro push. Primeiro crie o runner e o SonarQube.
