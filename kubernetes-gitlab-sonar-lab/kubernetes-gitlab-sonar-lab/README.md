@@ -122,10 +122,23 @@ No projeto GitLab:
 4. Permita jobs sem tag ou mantenha a tag configurada no pipeline.
 5. Copie o token com prefixo `glrt-`.
 
+# Download the binary for your system
+sudo curl -L --output /usr/local/bin/gitlab-runner https://gitlab-runner-downloads.s3.amazonaws.com/latest/binaries/gitlab-runner-linux-amd64
+
+# Give it permission to execute
+sudo chmod +x /usr/local/bin/gitlab-runner
+
+# Create a GitLab Runner user
+sudo useradd --comment 'GitLab Runner' --create-home gitlab-runner --shell /bin/bash
+
+# Install and run as a service
+sudo gitlab-runner install --user=gitlab-runner --working-directory=/home/gitlab-runner
+sudo gitlab-runner start
+
 No terminal, exporte o token sem gravá-lo no repositório:
 
 ```bash
-export TF_VAR_gitlab_runner_token='glrt-COLE_O_TOKEN_AQUI'
+gitlab-runner register  --url https://gitlab.com  --token glrt-76Ohsi...
 ```
 
 O runner inicia conexões de saída para o GitLab. Não é necessário publicar a API
