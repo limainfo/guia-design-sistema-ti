@@ -1,0 +1,44 @@
+<main class="page">
+  <section class="hero">
+    <p class="eyebrow">Kubernetes + GitLab CI/CD + SonarQube</p>
+    <h1>Microplatform Development Lab</h1>
+    <p>
+      Este microfrontend Angular consulta um microbackend Spring Boot distribuído
+      em pods Kubernetes. Faça novos merges e observe a versão e o nome do pod mudarem.
+    </p>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <div class="card-header">
+        <h2>Backend ativo</h2>
+        <button type="button" (click)="refresh()" [disabled]="loading">
+          {{ loading ? 'Atualizando...' : 'Consultar outro pod' }}
+        </button>
+      </div>
+
+      <dl *ngIf="info; else waiting">
+        <div><dt>Serviço</dt><dd>{{ info.service }}</dd></div>
+        <div><dt>Versão</dt><dd>{{ info.version }}</dd></div>
+        <div><dt>Pod</dt><dd>{{ info.pod }}</dd></div>
+        <div><dt>Java</dt><dd>{{ info.java }}</dd></div>
+        <div><dt>Horário</dt><dd>{{ info.timestamp }}</dd></div>
+      </dl>
+
+      <ng-template #waiting>
+        <p>Aguardando resposta do backend...</p>
+      </ng-template>
+    </article>
+
+    <article class="card">
+      <h2>Teste funcional</h2>
+      <label for="name">Nome</label>
+      <div class="form-row">
+        <input id="name" [(ngModel)]="name" maxlength="40" />
+        <button type="button" (click)="greet()">Enviar</button>
+      </div>
+      <p class="result" *ngIf="greeting">{{ greeting.message }}</p>
+      <p class="error" *ngIf="error">{{ error }}</p>
+    </article>
+  </section>
+</main>

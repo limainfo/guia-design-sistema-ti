@@ -1,0 +1,8 @@
+
+kubeconfig_path       = "../../.kube/kind-config"
+gitlab_url             = "https://gitlab.com/"
+install_gitlab_runner  = true
+
+# Não grave o token real neste arquivo. Prefira:
+# export TF_VAR_gitlab_runner_token='glrt-...'
+# gitlab_runner_token = "glrt-..."

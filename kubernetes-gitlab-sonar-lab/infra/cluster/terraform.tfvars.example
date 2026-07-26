@@ -1,0 +1,2 @@
+cluster_name    = "microplatform-dev"
+kubeconfig_path = "../../.kube/kind-config"
