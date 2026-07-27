@@ -28,3 +28,14 @@ make status
 ```
 
 Antes do primeiro push, o Project Runner deve aparecer **Online** no GitLab.
+
+
+## Validações da revisão final
+
+- scripts Bash verificados com `bash -n`;
+- YAML do pipeline, chart e aplicações analisado por parser;
+- todos os scripts marcados como executáveis;
+- `destroy.sh` possui fallback independente do state Terraform;
+- não há comando `gitlab-runner verify --config` no pacote;
+- controller Java não usa `@Validated` no endpoint testado;
+- tag `LOCAL_TAG` permanece imediata e única por execução do Make.

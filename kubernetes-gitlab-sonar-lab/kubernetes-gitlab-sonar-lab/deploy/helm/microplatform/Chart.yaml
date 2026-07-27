@@ -1,6 +1,0 @@
-apiVersion: v2
-name: microplatform
-description: Microbackend Spring Boot e microfrontend Angular para laboratório Kubernetes.
-type: application
-version: 0.1.0
-appVersion: "local"

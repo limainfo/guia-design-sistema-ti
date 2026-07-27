@@ -15,3 +15,14 @@
 - corrigida a tag local para ser calculada uma única vez com `:=`;
 - adicionada verificação de existência das imagens antes de `kind load`;
 - esclarecido que `make local-deploy` não executa jobs da pipeline.
+
+
+## Revisão final — 2026-07-26
+
+- `make destroy` passou a usar Terraform, Kind e fallback Docker por label/nome;
+- adicionado `make recover` para reinício de nós Kind parados e kubeconfig obsoleto;
+- corrigido `GreetingController` para resposta HTTP 400 na validação;
+- removido uso frágil de `gitlab-runner verify` do diagnóstico;
+- adicionado tratamento de release Helm órfã do Runner;
+- documentação esclarece port-forward do Sonar e execução apenas após merge em main;
+- criado `docs/CLEAN-START.md` para repetição sem states e Git antigos.

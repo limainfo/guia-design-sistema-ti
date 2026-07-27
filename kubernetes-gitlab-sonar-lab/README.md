@@ -87,6 +87,11 @@ sem `Permission denied (publickey)`.
 Ainda não faça o primeiro push. Primeiro deixe Runner, SonarQube e variáveis
 prontos, para que a primeira pipeline não fique presa.
 
+Para repetir o experimento do zero, prefira criar um projeto GitLab vazio novo ou
+garanta que `main` seja a branch padrão. Não exclua a branch padrão durante o
+roteiro. As branches `feature/*` devem ficar desprotegidas para poderem ser
+recriadas e removidas normalmente.
+
 ## 4. Criar o Project Runner corretamente
 
 No projeto GitLab:
@@ -144,7 +149,7 @@ O alvo agora:
 2. instala PostgreSQL e SonarQube;
 3. instala o chart oficial do GitLab Runner;
 4. aguarda o Deployment;
-5. executa `gitlab-runner verify` dentro do pod.
+5. valida o `config.toml`, o executor Kubernetes e os logs de inicialização.
 
 Não prossiga ao push enquanto isto não funcionar:
 
@@ -156,8 +161,8 @@ Resultado esperado:
 
 ```text
 Deployment successfully rolled out
-Verifying runner... is alive
-[OK] Runner implantado e autenticado.
+[OK] Executor Kubernetes configurado.
+[OK] Runner registrado/configurado no GitLab.
 ```
 
 Na interface do GitLab, o Project Runner deve aparecer **Online**. Caso os jobs
@@ -176,7 +181,10 @@ make sonar
 ```
 
 Acesse `http://localhost:9000` com `admin/admin`, altere a senha e gere um token
-em **My Account > Security**.
+em **My Account > Security**. O comando permanece no terminal porque executa
+`kubectl port-forward`. Depois de gerar o token, pode encerrá-lo com `Ctrl+C`: isso
+fecha apenas o túnel local, não o pod do SonarQube. A pipeline acessa o Service
+pelo DNS interno do cluster.
 
 No GitLab, em **Settings > CI/CD > Variables**, cadastre:
 
@@ -337,8 +345,17 @@ helm rollback microplatform 1 -n dev --wait
 make destroy
 ```
 
-O script remove a plataforma antes do cluster e não exige que o token do Runner
-continue disponível.
+O script tenta remover a plataforma e o cluster pelos respectivos states do
+Terraform. Em seguida, executa `kind delete cluster` e remove por label/nome
+qualquer contêiner de nó residual. Assim, o resultado não depende exclusivamente
+do state presente na branch atual. Para conferir:
+
+```bash
+docker ps -a --filter 'label=io.x-k8s.kind.cluster=microplatform-dev'
+```
+
+Após reiniciar Docker/WSL, caso os contêineres existam apenas parados, use
+`make recover` em vez de recriar o laboratório.
 
 ## 15. Documentação complementar
 
@@ -351,6 +368,7 @@ continue disponível.
 - `docs/VERSIONS.md`
 - `docs/CHANGELOG.md`
 - `docs/VALIDATION.md`
+- `docs/CLEAN-START.md`
 
 ## Limitações didáticas
 

@@ -1,8 +1,0 @@
-Frontend local: http://localhost:8080
-Backend local:  http://localhost:8081/api/info
-
-Observe o rolling update:
-  kubectl -n {{ .Release.Namespace }} get pods -w -o wide
-
-Histórico da release:
-  helm -n {{ .Release.Namespace }} history {{ .Release.Name }}

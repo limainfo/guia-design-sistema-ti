@@ -1,4 +1,3 @@
-
 resource "helm_release" "gitlab_runner" {
   count = var.install_gitlab_runner ? 1 : 0
 
@@ -22,9 +21,9 @@ resource "helm_release" "gitlab_runner" {
 
   values = [
     yamlencode({
-      gitlabUrl    = var.gitlab_url
-      runnerToken  = var.gitlab_runner_token
-      concurrent   = 2
+      gitlabUrl     = var.gitlab_url
+      runnerToken   = var.gitlab_runner_token
+      concurrent    = 2
       checkInterval = 3
 
       rbac = {
@@ -38,8 +37,7 @@ resource "helm_release" "gitlab_runner" {
 
       runners = {
         # Com tokens glrt-, tags, acesso a branches protegidas e run-untagged
-        # são atributos do Runner criado na interface do GitLab. Não são
-        # configurados por gitlab-runner register nem por este values.
+        # são atributos do Runner criado na interface do GitLab.
         config = <<-TOML
           [[runners]]
             request_concurrency = 2

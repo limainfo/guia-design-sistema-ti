@@ -13,7 +13,7 @@ ifeq ($(origin LOCAL_TAG), undefined)
 LOCAL_TAG := local-$(shell date +%Y%m%d%H%M%S)
 endif
 
-.PHONY: help install-kind check cluster platform platform-local runner-check \
+.PHONY: help install-kind check cluster recover platform platform-local runner-check \
         runner-logs ci-check local-build local-deploy status watch sonar \
         destroy clean
 
@@ -22,6 +22,7 @@ help:
 	  'make install-kind   - instala/repara o Kind oficial com validações' \
 	  'make check          - valida binários, Docker e recursos básicos' \
 	  'make cluster        - cria o Kubernetes Kind via Terraform' \
+	  'make recover        - reinicia nós Kind parados e renova o kubeconfig' \
 	  'make platform       - instala PostgreSQL, SonarQube e Runner (token obrigatório)' \
 	  'make platform-local - instala PostgreSQL e SonarQube sem GitLab Runner' \
 	  'make runner-check   - confirma que o Runner está vivo e registrado' \
@@ -49,10 +50,15 @@ cluster: check
 	@KUBECONFIG='$(KUBECONFIG_PATH)' kubectl wait --for=condition=Ready nodes --all --timeout=180s
 	@printf '\nCluster criado. Use:\nexport KUBECONFIG=%s\n' '$(KUBECONFIG_PATH)'
 
+recover: check
+	@./scripts/recover-cluster.sh '$(KUBECONFIG_PATH)' '$(CLUSTER_NAME)'
+
 platform: check
 	@test -f '$(KUBECONFIG_PATH)' || (echo 'Kubeconfig não encontrado. Execute make cluster.' >&2 && exit 1)
 	@./scripts/require-runner-token.sh
-	@cd $(PLATFORM_DIR) && terraform init && terraform apply -auto-approve \
+	@cd $(PLATFORM_DIR) && terraform init
+	@KUBECONFIG='$(KUBECONFIG_PATH)' ./scripts/reconcile-runner-release.sh '$(PLATFORM_DIR)'
+	@cd $(PLATFORM_DIR) && terraform apply -auto-approve \
 	  -var='kubeconfig_path=$(KUBECONFIG_PATH)' \
 	  -var='install_gitlab_runner=true'
 	@KUBECONFIG='$(KUBECONFIG_PATH)' ./scripts/check-runner.sh

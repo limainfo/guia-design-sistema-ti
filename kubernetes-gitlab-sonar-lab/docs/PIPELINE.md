@@ -71,3 +71,15 @@ make ci-check
 ```
 
 `make local-deploy` não processa jobs do GitLab; ele é um teste local independente.
+
+
+## Quando o SonarQube aparece
+
+A pipeline de merge request executa apenas validação e testes. Os jobs
+`backend-sonar` e `frontend-sonar` possuem regra para a branch padrão e aparecem
+somente na pipeline criada após o merge em `main`.
+
+Antes do primeiro push em `main`, cadastre `SONAR_TOKEN` no GitLab. O comando
+`make sonar` abre apenas o acesso local à interface por port-forward; pode ser
+encerrado após gerar o token. O SonarQube precisa permanecer como pod no cluster,
+mas o terminal do port-forward não precisa permanecer aberto para a pipeline.
