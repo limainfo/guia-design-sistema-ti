@@ -319,10 +319,10 @@ quadrantChart
     title Relação entre tipo de tarefa e interação humana
     x-axis Repetitiva --> Criativa e complexa
     y-axis Baixa interação humana --> Alta interação humana
-    quadrant-1 Copiloto: IA apoia, humano decide
-    quadrant-2 Apoio de bastidor com interface humana
-    quadrant-3 Automação elevada
-    quadrant-4 IA como parceira de criação
+    quadrant-1 "Copiloto: IA apoia, humano decide"
+    quadrant-2 "Apoio de bastidor com interface humana"
+    quadrant-3 "Automação elevada"
+    quadrant-4 "IA como parceira de criação"
 ```
 
 A interpretação apresentada é:
