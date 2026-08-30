@@ -66,3 +66,4 @@ Os principais visuais transformados em Mermaid incluem:
 - dez heurísticas de Nielsen;
 - mapa mental de revisão.
 
+
