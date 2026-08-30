@@ -17,11 +17,11 @@ O objetivo deste repositório é transformar o conteúdo das três aulas em uma 
 
 | Ordem | Documento | Conteúdo |
 |---:|---|---|
-| 0 | [Matriz de rastreabilidade](docs/00-matriz-rastreabilidade.md) | Relação entre os capítulos e os PDFs, critérios de fidelidade e inconsistências observadas |
-| 1 | [Fundamentos de UX e Prototipagem](docs/01-fundamentos-ux-e-prototipagem.md) | Complexidade, transformação digital, UX, usabilidade, Design Thinking, processo de UX, UX × UI e papel da prototipagem |
-| 2 | [Tipos, Fidelidade e Ferramentas](docs/02-tipos-fidelidade-e-ferramentas.md) | Definição de protótipo, formas, fidelidade, protótipos exploratórios e validadores, protótipo × MVP, Marvel App e Figma |
-| 3 | [Validação, Testes e Heurísticas](docs/03-validacao-testes-e-heuristicas.md) | Contexto de uso, métodos de validação, teste de usabilidade, planejamento, condução, análise de dados e heurísticas de Nielsen |
-| 4 | [Revisão para a Prova](docs/04-revisao-para-prova.md) | Resumo consolidado, tabelas comparativas, mapas mentais, pegadinhas conceituais, checklist e questões com gabarito |
+| 0 | [Matriz de rastreabilidade](/00-matriz-rastreabilidade.md) | Relação entre os capítulos e os PDFs, critérios de fidelidade e inconsistências observadas |
+| 1 | [Fundamentos de UX e Prototipagem](/01-fundamentos-ux-e-prototipagem.md) | Complexidade, transformação digital, UX, usabilidade, Design Thinking, processo de UX, UX × UI e papel da prototipagem |
+| 2 | [Tipos, Fidelidade e Ferramentas](/02-tipos-fidelidade-e-ferramentas.md) | Definição de protótipo, formas, fidelidade, protótipos exploratórios e validadores, protótipo × MVP, Marvel App e Figma |
+| 3 | [Validação, Testes e Heurísticas](/03-validacao-testes-e-heuristicas.md) | Contexto de uso, métodos de validação, teste de usabilidade, planejamento, condução, análise de dados e heurísticas de Nielsen |
+| 4 | [Revisão para a Prova](/04-revisao-para-prova.md) | Resumo consolidado, tabelas comparativas, mapas mentais, pegadinhas conceituais, checklist e questões com gabarito |
 
 ## Como estudar
 
