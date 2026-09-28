@@ -34,7 +34,7 @@
 
 DevOps não deve ser entendido apenas como um conjunto de ferramentas.
 
-O material o apresenta principalmente como uma **cultura composta por pessoas, processos e práticas**, criada para aumentar a colaboração entre Desenvolvimento (**Dev**) e Operações (**Ops**) e acelerar a entrega de software de qualidade em produção. :chatgpt-content-reference{index="1"}
+O material o apresenta principalmente como uma **cultura composta por pessoas, processos e práticas**, criada para aumentar a colaboração entre Desenvolvimento (**Dev**) e Operações (**Ops**) e acelerar a entrega de software de qualidade em produção. 
 
 ```mermaid
 flowchart LR
@@ -56,7 +56,7 @@ A ideia central da disciplina pode ser sintetizada como:
 
 > **DevOps = cultura + colaboração + automação + feedback contínuo.**
 
-A automação é tratada como elemento central porque permite reduzir trabalho manual, aumentar a reprodutibilidade e tornar a entrega mais rápida, confiável e segura. :chatgpt-content-reference{index="2"}
+A automação é tratada como elemento central porque permite reduzir trabalho manual, aumentar a reprodutibilidade e tornar a entrega mais rápida, confiável e segura. 
 
 ---
 
@@ -73,7 +73,7 @@ Isso provocava:
 - dificuldade para diagnosticar problemas;
 - ciclos de desenvolvimento longos.
 
-O material relaciona o surgimento do DevOps justamente à necessidade de superar essa separação organizacional. :chatgpt-content-reference{index="3"}
+O material relaciona o surgimento do DevOps justamente à necessidade de superar essa separação organizacional. 
 
 ### Modelo tradicional
 
@@ -111,7 +111,7 @@ O ciclo é contínuo. Operação não representa o término do desenvolvimento: 
 
 ## 3.1 Por que automatizar?
 
-No material, automação é apresentada como o **coração da cultura DevOps**. Sem ela, objetivos como CI, entrega contínua, escalabilidade e observabilidade tornam-se muito mais difíceis de atingir. :chatgpt-content-reference{index="4"}
+No material, automação é apresentada como o **coração da cultura DevOps**. Sem ela, objetivos como CI, entrega contínua, escalabilidade e observabilidade tornam-se muito mais difíceis de atingir. 
 
 Automatizar permite principalmente:
 
@@ -124,7 +124,7 @@ Automatizar permite principalmente:
 | Feedback tardio | Feedback rápido |
 | Ambientes diferentes | Padronização |
 
-O objetivo não é simplesmente substituir pessoas. O material enfatiza a liberação dos profissionais das tarefas repetitivas para atividades que agreguem maior valor. :chatgpt-content-reference{index="5"}
+O objetivo não é simplesmente substituir pessoas. O material enfatiza a liberação dos profissionais das tarefas repetitivas para atividades que agreguem maior valor. 
 
 ```mermaid
 flowchart TD
@@ -148,7 +148,7 @@ flowchart TD
 
 # 4. Contexto histórico
 
-O material associa a origem do DevOps ao movimento Agile e ao crescimento de práticas de Continuous Integration e Continuous Deployment no final dos anos 2000. :chatgpt-content-reference{index="6"}
+O material associa a origem do DevOps ao movimento Agile e ao crescimento de práticas de Continuous Integration e Continuous Deployment no final dos anos 2000. 
 
 Uma linha do tempo apresentada na disciplina destaca:
 
@@ -166,7 +166,7 @@ timeline
                    : grandes organizações
 ```
 
-Esses marcos são explicitamente apresentados pelo material. :chatgpt-content-reference{index="7"}
+Esses marcos são explicitamente apresentados pelo material. 
 
 ## Waterfall
 
@@ -181,7 +181,7 @@ flowchart LR
     DEPLOY --> MAINT["Manutenção"]
 ```
 
-As fases são sequenciais e uma etapa normalmente precisa terminar antes da próxima. Isso favorece ciclos longos quando comparado às práticas iterativas abordadas pela disciplina. :chatgpt-content-reference{index="8"}
+As fases são sequenciais e uma etapa normalmente precisa terminar antes da próxima. Isso favorece ciclos longos quando comparado às práticas iterativas abordadas pela disciplina. 
 
 ---
 
@@ -191,7 +191,7 @@ Esses conceitos são fundamentais e possuem significados diferentes.
 
 ## Continuous Integration — CI
 
-**Integração Contínua** é a prática de integrar frequentemente as alterações em um repositório central e executar verificações automatizadas sobre essas alterações. :chatgpt-content-reference{index="9"}
+**Integração Contínua** é a prática de integrar frequentemente as alterações em um repositório central e executar verificações automatizadas sobre essas alterações. 
 
 ```mermaid
 flowchart LR
@@ -213,7 +213,7 @@ O software permanece constantemente em condição de ser implantado, mas a entra
 
 ## Continuous Deployment
 
-O material diferencia Continuous Deployment de Continuous Delivery: no Deployment, alterações aprovadas pelos testes seguem automaticamente para produção; no Delivery, ficam preparadas para implantação, mas ainda existe autorização adicional. :chatgpt-content-reference{index="10"}
+O material diferencia Continuous Deployment de Continuous Delivery: no Deployment, alterações aprovadas pelos testes seguem automaticamente para produção; no Delivery, ficam preparadas para implantação, mas ainda existe autorização adicional. 
 
 ```mermaid
 flowchart TD
@@ -243,7 +243,7 @@ flowchart TD
 
 DevSecOps enfatiza que **segurança deve participar de todo o ciclo de desenvolvimento**, e não ser uma etapa adicionada apenas no final.
 
-O material destaca três princípios. :chatgpt-content-reference{index="11"}
+O material destaca três princípios. 
 
 ```mermaid
 flowchart LR
@@ -285,9 +285,9 @@ O material cita como exemplos:
 | Dependências | OWASP Dependency-Check, WhiteSource |
 | Containers | Aqua Security, Trivy, Falco |
 
-:chatgpt-content-reference{index="12"}
 
-Outro conceito enfatizado é a **rastreabilidade**: é importante identificar o que aconteceu no sistema e quem criou ou modificou algo. :chatgpt-content-reference{index="13"}
+
+Outro conceito enfatizado é a **rastreabilidade**: é importante identificar o que aconteceu no sistema e quem criou ou modificou algo. 
 
 ---
 
@@ -307,7 +307,7 @@ flowchart LR
     INFRA --> STORAGE["Storage"]
 ```
 
-O material utiliza **Terraform** como exemplo prático de IaC e contrapõe essa abordagem ao processo tradicional de instalar manualmente sistema operacional, servidor de aplicação, banco de dados e demais componentes. :chatgpt-content-reference{index="14"}
+O material utiliza **Terraform** como exemplo prático de IaC e contrapõe essa abordagem ao processo tradicional de instalar manualmente sistema operacional, servidor de aplicação, banco de dados e demais componentes. 
 
 ### Benefícios conceituais
 
@@ -328,11 +328,11 @@ O material ressalta uma distinção importante:
 
 > **Container Docker não é máquina virtual.**
 
-Docker oferece isolamento e portabilidade, permitindo maior consistência entre ambientes. :chatgpt-content-reference{index="15"}
+Docker oferece isolamento e portabilidade, permitindo maior consistência entre ambientes. 
 
 ## 8.1 Arquitetura Docker
 
-Os elementos apresentados são: :chatgpt-content-reference{index="16"}
+Os elementos apresentados são: 
 
 ```mermaid
 flowchart TD
@@ -373,7 +373,7 @@ O principal ganho discutido é a consistência:
 Desenvolvimento ≈ Teste ≈ Produção
 ```
 
-A padronização também torna pipelines CI/CD mais eficientes. :chatgpt-content-reference{index="17"}
+A padronização também torna pipelines CI/CD mais eficientes. 
 
 ---
 
@@ -387,7 +387,7 @@ Com centenas ou milhares, surge outro problema:
 
 É aí que entra a **orquestração**.
 
-Segundo o material, Kubernetes auxilia em: :chatgpt-content-reference{index="18"}
+Segundo o material, Kubernetes auxilia em: 
 
 - implantação automática;
 - autoescalabilidade;
@@ -415,7 +415,7 @@ flowchart TD
 
 ## 9.1 Arquitetura Kubernetes
 
-O material divide o cluster em **Control Plane** e **Worker Nodes**. :chatgpt-content-reference{index="19"}
+O material divide o cluster em **Control Plane** e **Worker Nodes**. 
 
 ```mermaid
 flowchart TB
@@ -494,7 +494,7 @@ Exemplos conceituais:
 
 **Platform as a Service** desloca o foco da infraestrutura para uma plataforma pronta sobre a qual aplicações podem ser desenvolvidas/executadas.
 
-O material faz essa progressão IaaS → PaaS ao introduzir GitHub Actions e plataformas capazes de integrar etapas do processo de produção de software. :chatgpt-content-reference{index="20"} :chatgpt-content-reference{index="21"}
+O material faz essa progressão IaaS → PaaS ao introduzir GitHub Actions e plataformas capazes de integrar etapas do processo de produção de software.  
 
 ```mermaid
 flowchart LR
@@ -518,7 +518,7 @@ O material cita tarefas como:
 - deployment;
 - gerenciamento de projetos.
 
-:chatgpt-content-reference{index="22"}
+
 
 ## 11.1 Workflow
 
@@ -555,7 +555,7 @@ flowchart TD
     JOB2 --> STEP22["Action"]
 ```
 
-A estrutura apresentada no material é: :chatgpt-content-reference{index="23"}
+A estrutura apresentada no material é: 
 
 | Elemento | Significado |
 |---|---|
@@ -612,7 +612,7 @@ sequenceDiagram
     GA-->>Dev: feedback
 ```
 
-O material ressalta ainda que GitHub Actions não se restringe à CI: pode suportar também a entrega contínua. :chatgpt-content-reference{index="24"}
+O material ressalta ainda que GitHub Actions não se restringe à CI: pode suportar também a entrega contínua. 
 
 ---
 
@@ -639,7 +639,7 @@ flowchart LR
 
 Utiliza inteligência artificial como suporte às operações.
 
-O material também menciona IA generativa e Machine Learning, especialmente em análise de dados. :chatgpt-content-reference{index="25"}
+O material também menciona IA generativa e Machine Learning, especialmente em análise de dados. 
 
 ### IA em CI/CD
 
@@ -658,13 +658,13 @@ flowchart LR
     RISK --> ROLLBACK["Rollback automático"]
 ```
 
-O material relaciona análises preditivas a dados históricos, seleção de testes relevantes e rollback automático baseado em risco. :chatgpt-content-reference{index="26"}
+O material relaciona análises preditivas a dados históricos, seleção de testes relevantes e rollback automático baseado em risco. 
 
 Mas há uma ideia ainda mais importante:
 
 > **ferramentas não substituem cultura.**
 
-A colaboração continua sendo tratada como o aspecto mais importante. :chatgpt-content-reference{index="27"}
+A colaboração continua sendo tratada como o aspecto mais importante. 
 
 ---
 
@@ -693,11 +693,11 @@ flowchart TD
     SRE --> REL["Confiabilidade"]
 ```
 
-Enquanto DevOps enfatiza colaboração e automação, SRE transforma esses princípios em mecanismos mensuráveis. :chatgpt-content-reference{index="28"}
+Enquanto DevOps enfatiza colaboração e automação, SRE transforma esses princípios em mecanismos mensuráveis. 
 
 ## 13.1 Objetivos de SRE
 
-O material destaca quatro frentes: :chatgpt-content-reference{index="29"}
+O material destaca quatro frentes: 
 
 1. automatizar tarefas operacionais;
 2. definir e monitorar SLOs;
@@ -708,7 +708,7 @@ E existe uma premissa importante:
 
 > **Sistemas falham.**
 
-A confiabilidade não parte da ideia de impedir absolutamente toda falha, mas de **planejar e administrar a confiabilidade**. :chatgpt-content-reference{index="30"}
+A confiabilidade não parte da ideia de impedir absolutamente toda falha, mas de **planejar e administrar a confiabilidade**. 
 
 ---
 
@@ -727,7 +727,7 @@ Exemplos:
 - latência;
 - taxa de erros.
 
-:chatgpt-content-reference{index="31"}
+
 
 ## 14.2 SLO — Service Level Objective
 
@@ -753,7 +753,7 @@ O SLA estabelece parâmetros como:
 - procedimentos de incidentes;
 - consequências pelo descumprimento.
 
-:chatgpt-content-reference{index="32"}
+
 
 ### Relação
 
@@ -779,7 +779,7 @@ flowchart LR
 
 # 15. Error Budget
 
-O **Error Budget — orçamento de erro** representa a quantidade de falha considerada aceitável durante determinado período sem comprometer a experiência do usuário. :chatgpt-content-reference{index="33"}
+O **Error Budget — orçamento de erro** representa a quantidade de falha considerada aceitável durante determinado período sem comprometer a experiência do usuário. 
 
 A premissa é:
 
@@ -836,13 +836,13 @@ INOVAÇÃO <---------- equilíbrio ----------> CONFIABILIDADE
 
 Se há orçamento disponível, existe espaço para mudanças e experimentação.
 
-Se está se esgotando, o material orienta priorizar estabilidade, correções e confiabilidade. :chatgpt-content-reference{index="34"}
+Se está se esgotando, o material orienta priorizar estabilidade, correções e confiabilidade. 
 
 ---
 
 # 16. Confiabilidade e alta disponibilidade
 
-O material utiliza uma arquitetura em AWS para discutir disponibilidade, load balancing, replicação e custo. :chatgpt-content-reference{index="35"}
+O material utiliza uma arquitetura em AWS para discutir disponibilidade, load balancing, replicação e custo. 
 
 Uma representação equivalente é:
 
@@ -880,7 +880,7 @@ No exemplo da aula, aumentar a disponibilidade exige avaliar:
 - latência;
 - recuperação de desastre.
 
-:chatgpt-content-reference{index="36"}
+
 
 ```mermaid
 flowchart TD
@@ -905,7 +905,7 @@ Esse é um ponto conceitual muito importante:
 
 **não se busca disponibilidade máxima a qualquer custo; busca-se a disponibilidade adequada às necessidades do negócio.**
 
-O material conclui que uma aplicação não precisa permanecer disponível 100% do tempo; deve-se estabelecer uma meta e alocar recursos para alcançá-la. :chatgpt-content-reference{index="37"}
+O material conclui que uma aplicação não precisa permanecer disponível 100% do tempo; deve-se estabelecer uma meta e alocar recursos para alcançá-la. 
 
 ## 16.2 Ativo-Ativo
 
@@ -926,7 +926,7 @@ flowchart TD
 
 Caso um ambiente falhe, outro continua atendendo.
 
-O objetivo é reduzir indisponibilidade e manter continuidade do negócio. :chatgpt-content-reference{index="38"}
+O objetivo é reduzir indisponibilidade e manter continuidade do negócio. 
 
 ---
 
@@ -934,7 +934,7 @@ O objetivo é reduzir indisponibilidade e manter continuidade do negócio. :chat
 
 Canary Deployment reduz o risco de implantação liberando inicialmente uma nova versão apenas para uma parcela limitada dos usuários ou servidores.
 
-:chatgpt-content-reference{index="39"}
+
 
 ```mermaid
 flowchart TD
@@ -978,7 +978,7 @@ O exemplo de mercado apresentado na disciplina relaciona conhecimentos como:
 - decisões orientadas por dados;
 - Linux.
 
-:chatgpt-content-reference{index="40"}
+
 
 ```mermaid
 mindmap
@@ -1133,10 +1133,10 @@ Não. No material, é fundamentalmente uma **cultura**.
 Não. É um elemento central para viabilizar suas práticas.
 
 **3. GitHub Actions serve apenas para CI?**  
-Não. Essa afirmação aparece explicitamente como falsa no quiz da disciplina; a ferramenta também pode participar da entrega contínua. :chatgpt-content-reference{index="41"}
+Não. Essa afirmação aparece explicitamente como falsa no quiz da disciplina; a ferramenta também pode participar da entrega contínua. 
 
 **4. Docker Container é máquina virtual?**  
-Não. O material ressalta explicitamente essa diferença. :chatgpt-content-reference{index="42"}
+Não. O material ressalta explicitamente essa diferença. 
 
 **5. SLI e SLO são iguais?**  
 Não. **SLI mede; SLO define uma meta baseada no indicador.**
@@ -1145,7 +1145,7 @@ Não. **SLI mede; SLO define uma meta baseada no indicador.**
 Não. É uma forma controlada de administrar a margem de falhas e equilibrar confiabilidade e inovação.
 
 **7. SRE tenta garantir 100% de disponibilidade?**  
-Não necessariamente. O material destaca que a meta adequada deve ser definida e os recursos alocados de acordo com ela. :chatgpt-content-reference{index="43"}
+Não necessariamente. O material destaca que a meta adequada deve ser definida e os recursos alocados de acordo com ela. 
 
 ---
 
@@ -1191,7 +1191,7 @@ Workflow
 
 ### 9. O que significa a expressão `class SRE implements interface DevOps`?
 
-**Resposta:** representa a ideia de SRE como implementação prática de princípios de DevOps por meio de mecanismos concretos e mensuráveis. :chatgpt-content-reference{index="44"}
+**Resposta:** representa a ideia de SRE como implementação prática de princípios de DevOps por meio de mecanismos concretos e mensuráveis. 
 
 ### 10. Qual a diferença entre SLI, SLO e SLA?
 
@@ -1209,7 +1209,7 @@ SLA → acordo
 
 ### 12. O que fazer quando o Error Budget está se esgotando?
 
-**Resposta:** reduzir o foco em novas features e priorizar correções, estabilidade e confiabilidade, conforme o modelo apresentado na disciplina. :chatgpt-content-reference{index="45"}
+**Resposta:** reduzir o foco em novas features e priorizar correções, estabilidade e confiabilidade, conforme o modelo apresentado na disciplina. 
 
 ### 13. O que é Canary Deployment?
 
@@ -1239,7 +1239,7 @@ FEEDBACK
 MELHORIA CONTÍNUA
 ```
 
-O material fecha essa evolução reforçando que, mesmo com GitOps, AIOps, IA e níveis crescentes de automação, **colaboração e cultura continuam fundamentais**, especialmente em equipes híbridas e remotas. :chatgpt-content-reference{index="46"}
+O material fecha essa evolução reforçando que, mesmo com GitOps, AIOps, IA e níveis crescentes de automação, **colaboração e cultura continuam fundamentais**, especialmente em equipes híbridas e remotas. 
 
 ---
 
